@@ -69,6 +69,7 @@ public class UserServiceImpl implements UserService {
                 .email(userDto.getEmail())
                 .username(userDto.getUsername())
                 .password(userDto.getPassword())
+                .role(userDto.getRole())
                 .active(true)
                 .build();
         User savedUser = userRepository.save(newUser);

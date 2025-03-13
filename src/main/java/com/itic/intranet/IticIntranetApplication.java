@@ -41,7 +41,7 @@ public class IticIntranetApplication {
             Classroom bachelorCda = new Classroom(null, "Bachelor-CDA", null);
             classroomRepository.save(bachelorCda);
 
-            User cheridanh = new User(null, "Chéridanh", "TSIELA", "divintsiela@gmail.com", "CTSIELA", "P@ssw0rd", true,  null, null);
+            User cheridanh = new User(null, "Chéridanh", "TSIELA", "divintsiela@gmail.com", "CTSIELA", "P@ssw0rd", null,  null, true);
             userRepository.save(cheridanh);
 
             List<User> listBachelorCdaStudents = new ArrayList<>();

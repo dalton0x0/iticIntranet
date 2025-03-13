@@ -22,10 +22,10 @@ public class User {
     private String email;
     private String username;
     private String password;
-    private boolean active;
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
+    private boolean active;
 }

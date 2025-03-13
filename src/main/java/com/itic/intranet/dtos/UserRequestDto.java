@@ -1,5 +1,6 @@
 package com.itic.intranet.dtos;
 
+import com.itic.intranet.models.Role;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -27,5 +28,5 @@ public class UserRequestDto {
             message = "Password must contain 8 characters, one uppercase letter, one lowercase letter, one number and one special character !")
     private String password;
     @NotNull(message = "Role can not be null !")
-    private Long role_id;
+    private Role role;
 }
