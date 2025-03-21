@@ -6,6 +6,7 @@ import com.itic.intranet.models.Classroom;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.services.ClassroomService;
 import com.itic.intranet.utils.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,20 +48,22 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public ApiResponse addClassroom(ClassroomRequestDto classroomDto) {
+    public ApiResponse addClassroom(@Valid ClassroomRequestDto classroomDto) {
         var newClassroom = Classroom.builder()
                 .name(classroomDto.getName())
+                .users(classroomDto.getUsers())
                 .build();
         Classroom savedClassroom = classroomRepository.save(newClassroom);
         return new ApiResponse("Classroom created successfully", HttpStatus.CREATED, savedClassroom);
     }
 
     @Override
-    public ApiResponse updateClassroom(Long id, ClassroomRequestDto classroomDto) {
+    public ApiResponse updateClassroom(@Valid Long id, ClassroomRequestDto classroomDto) {
         Classroom existingClassroom = classroomRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Classroom not found")
         );
         existingClassroom.setName(classroomDto.getName());
+        existingClassroom.setUsers(classroomDto.getUsers());
         Classroom updatedClassroom = classroomRepository.save(existingClassroom);
         return new ApiResponse("Classroom updated successfully", HttpStatus.OK, updatedClassroom);
     }

@@ -55,6 +55,7 @@ public class EvaluationServiceImpl implements EvaluationService {
                 .minValue(evaluationDto.getMinValue())
                 .maxValue(evaluationDto.getMaxValue())
                 .date(LocalDateTime.now())
+                .users(evaluationDto.getUsers())
                 .build();
         Evaluation savedEvaluation = evaluationRepository.save(newEvaluation);
         return new ApiResponse("Evaluation created successfully", HttpStatus.CREATED, savedEvaluation);
@@ -67,10 +68,10 @@ public class EvaluationServiceImpl implements EvaluationService {
         );
         existingEvaluation.setTitle(evaluationDto.getTitle());
         existingEvaluation.setDescription(evaluationDto.getDescription());
-        existingEvaluation.setDescription(evaluationDto.getDescription());
         existingEvaluation.setMinValue(evaluationDto.getMinValue());
         existingEvaluation.setMaxValue(evaluationDto.getMaxValue());
         existingEvaluation.setDate(LocalDateTime.now());
+        existingEvaluation.setUsers(evaluationDto.getUsers());
         Evaluation updatedEvaluation = evaluationRepository.save(existingEvaluation);
         return new ApiResponse("Evaluation updated successfully", HttpStatus.OK, updatedEvaluation);
     }

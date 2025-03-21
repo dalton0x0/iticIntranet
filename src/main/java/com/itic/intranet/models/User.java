@@ -25,6 +25,8 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+    @ManyToMany(mappedBy = "users")
+    private List<Classroom> classroom;
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
     private boolean active;

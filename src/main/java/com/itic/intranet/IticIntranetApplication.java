@@ -41,14 +41,24 @@ public class IticIntranetApplication {
             Classroom bachelorCda = new Classroom(null, "Bachelor-CDA", null);
             classroomRepository.save(bachelorCda);
 
-            User cheridanh = new User(null, "Chéridanh", "TSIELA", "divintsiela@gmail.com", "CTSIELA", "P@ssw0rd", null,  null, true);
+            User cheridanh = new User(null, "Chéridanh", "TSIELA", "divintsiela@gmail.com", "CTSIELA", "P@ssw0rd", student, null,  null, true);
             userRepository.save(cheridanh);
 
             List<User> listBachelorCdaStudents = new ArrayList<>();
             listBachelorCdaStudents.add(cheridanh);
 
+            bachelorCda.setUsers(listBachelorCdaStudents);
+            classroomRepository.save(bachelorCda);
+
             Evaluation makeMcd = new Evaluation(null, "Make MCD", "MCD for your Bachelor Project", 0, 500, LocalDateTime.now(), listBachelorCdaStudents, null);
             evaluationRepository.save(makeMcd);
+
+            Note mcdNote1 = new Note(null, 125, cheridanh, makeMcd);
+            noteRepository.save(mcdNote1);
+            List<Note> listMcdNotes = new ArrayList<>();
+            listMcdNotes.add(mcdNote1);makeMcd.setNotes(listMcdNotes);
+            evaluationRepository.save(makeMcd);
+
             /*
             Role student = new Role(null, "Student", null);
             roleRepository.save(student);

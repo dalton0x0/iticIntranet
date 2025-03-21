@@ -70,6 +70,7 @@ public class UserServiceImpl implements UserService {
                 .username(userDto.getUsername())
                 .password(userDto.getPassword())
                 .role(userDto.getRole())
+                .classroom(userDto.getClassroom())
                 .active(true)
                 .build();
         User savedUser = userRepository.save(newUser);
@@ -86,6 +87,8 @@ public class UserServiceImpl implements UserService {
         existingUser.setEmail(userDto.getEmail());
         existingUser.setUsername(userDto.getUsername());
         existingUser.setPassword(userDto.getPassword());
+        existingUser.setRole(userDto.getRole());
+        existingUser.setClassroom(userDto.getClassroom());
         existingUser.setActive(true);
         User updatedUser = userRepository.save(existingUser);
         return new ApiResponse("User updated successfully", HttpStatus.OK, updatedUser);
