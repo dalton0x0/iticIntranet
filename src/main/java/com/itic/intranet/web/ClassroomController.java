@@ -3,9 +3,7 @@ package com.itic.intranet.web;
 import com.itic.intranet.dtos.ClassroomRequestDto;
 import com.itic.intranet.services.ClassroomService;
 import com.itic.intranet.utils.ApiResponse;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,37 +16,37 @@ public class ClassroomController {
     private ClassroomService classroomService;
 
     @GetMapping("/test")
-    public ApiResponse test() {
-        return new ApiResponse("API TEST OK !", HttpStatus.OK, null);
+    public ResponseEntity<ApiResponse> test() {
+        return ResponseEntity.ok(new ApiResponse("API TEST OK !", null));
     }
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getALllClassrooms() {
-        return ResponseEntity.ok(classroomService.getAllClassrooms());
+        return classroomService.getAllClassrooms();
     }
 
     @GetMapping("/show/{id}")
     public ResponseEntity<ApiResponse> getClassroomById(@PathVariable Long id) {
-        return ResponseEntity.ok(classroomService.getClassroomById(id));
+        return classroomService.getClassroomById(id);
     }
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse> getClassroomByName(@RequestParam String name) {
-        return ResponseEntity.ok(classroomService.getClassroomByName(name));
+        return classroomService.getClassroomByName(name);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addClassroom(@Valid @RequestBody ClassroomRequestDto classroomDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(classroomService.addClassroom(classroomDto));
+    public ResponseEntity<ApiResponse> addClassroom(@RequestBody ClassroomRequestDto classroomDto) {
+        return classroomService.addClassroom(classroomDto);
     }
 
     @PutMapping("update/{id}")
-    public ResponseEntity<ApiResponse> updateClassroom(@PathVariable Long id,@Valid @RequestBody ClassroomRequestDto classroomDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(classroomService.updateClassroom(id, classroomDto));
+    public ResponseEntity<ApiResponse> updateClassroom(@PathVariable Long id, @RequestBody ClassroomRequestDto classroomDto) {
+        return classroomService.updateClassroom(id, classroomDto);
     }
 
     @DeleteMapping("delete/{id}")
     public ResponseEntity<ApiResponse> deleteClassroom(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(classroomService.deleteClassroom(id));
+        return classroomService.deleteClassroom(id);
     }
 }

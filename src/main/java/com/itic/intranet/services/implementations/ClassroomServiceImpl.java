@@ -1,79 +1,82 @@
 package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
+import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.models.Classroom;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.services.ClassroomService;
 import com.itic.intranet.utils.ApiResponse;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class ClassroomServiceImpl implements ClassroomService {
 
-    @Autowired
-    ClassroomRepository classroomRepository;
+    private final ClassroomRepository classroomRepository;
 
     @Override
-    public ApiResponse getAllClassrooms() {
+    public ResponseEntity<ApiResponse> getAllClassrooms() {
         List<Classroom> allClassrooms = classroomRepository.findAll();
-        if (allClassrooms.isEmpty()) {
-            return new ApiResponse("List of classrooms is empty", HttpStatus.NO_CONTENT, allClassrooms);
+        return allClassrooms.isEmpty()
+                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("No classrooms found", allClassrooms))
+                : ResponseEntity.ok(new ApiResponse("List of classrooms", allClassrooms));
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> getClassroomById(Long id) {
+        return classroomRepository.findById(id)
+                .map(classroom -> ResponseEntity.ok(new ApiResponse("Classroom found", classroom)))
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found with ID: " + id));
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> getClassroomByName(String classroomName) {
+        List<Classroom> classrooms = classroomRepository.findByNameContaining(classroomName);
+        if (classrooms.isEmpty()) {
+            throw new ResourceNotFoundException("Classroom not found with name: " + classroomName);
         }
-        return new ApiResponse("List of classrooms", HttpStatus.OK, allClassrooms);
+        return ResponseEntity.ok(new ApiResponse("Classroom(s) found", classrooms));
     }
 
     @Override
-    public ApiResponse getClassroomById(Long id) {
-        Optional<Classroom> classroom = Optional.ofNullable(classroomRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Classroom not found")
-        ));
-        return new ApiResponse("Classroom found", HttpStatus.OK, classroom);
-    }
-
-    @Override
-    public ApiResponse getClassroomByName(String name) {
-        Optional<Classroom> classroom = Optional.ofNullable(classroomRepository.findByNameContaining(name).orElseThrow(
-                () -> new ResourceNotFoundException("Classroom not found")
-        ));
-        return new ApiResponse("Classroom found", HttpStatus.OK, classroom);
-    }
-
-    @Override
-    public ApiResponse addClassroom(@Valid ClassroomRequestDto classroomDto) {
-        var newClassroom = Classroom.builder()
+    public ResponseEntity<ApiResponse> addClassroom(ClassroomRequestDto classroomDto) {
+        if (classroomDto.getName() == null || classroomDto.getName().trim().isEmpty()) {
+            throw new BadRequestException("Classroom name is required");
+        }
+        Classroom newClassroom = Classroom.builder()
                 .name(classroomDto.getName())
-                .users(classroomDto.getUsers())
                 .build();
         Classroom savedClassroom = classroomRepository.save(newClassroom);
-        return new ApiResponse("Classroom created successfully", HttpStatus.CREATED, savedClassroom);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Classroom created successfully", savedClassroom));
     }
 
     @Override
-    public ApiResponse updateClassroom(@Valid Long id, ClassroomRequestDto classroomDto) {
-        Classroom existingClassroom = classroomRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Classroom not found")
-        );
-        existingClassroom.setName(classroomDto.getName());
-        existingClassroom.setUsers(classroomDto.getUsers());
-        Classroom updatedClassroom = classroomRepository.save(existingClassroom);
-        return new ApiResponse("Classroom updated successfully", HttpStatus.OK, updatedClassroom);
+    public ResponseEntity<ApiResponse> updateClassroom(Long id, ClassroomRequestDto classroomDto) {
+        if (classroomDto.getName() == null || classroomDto.getName().trim().isEmpty()) {
+            throw new BadRequestException("Classroom name is required");
+        }
+        return classroomRepository.findById(id)
+                .map(existingClassroom -> {
+                    existingClassroom.setName(classroomDto.getName());
+                    Classroom updatedClassroom = classroomRepository.save(existingClassroom);
+                    return ResponseEntity.ok(new ApiResponse("Classroom updated successfully", updatedClassroom));
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found with ID: " + id));
     }
 
     @Override
-    public ApiResponse deleteClassroom(Long id) {
-        Classroom classroomToDelete = classroomRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Classroom not found")
-        );
-        classroomRepository.delete(classroomToDelete);
-        return new ApiResponse("Classroom deleted successfully", HttpStatus.OK, null);
+    public ResponseEntity<ApiResponse> deleteClassroom(Long id) {
+        return classroomRepository.findById(id)
+                .map(classroom -> {
+                    classroomRepository.delete(classroom);
+                    return ResponseEntity.ok(new ApiResponse("Classroom deleted successfully", null));
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found with ID: " + id));
     }
 }

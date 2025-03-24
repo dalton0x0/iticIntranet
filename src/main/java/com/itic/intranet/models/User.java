@@ -1,5 +1,6 @@
 package com.itic.intranet.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,13 +22,18 @@ public class User {
     private String lastname;
     private String email;
     private String username;
+    @JsonIgnore
     private String password;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
-    @ManyToMany(mappedBy = "users")
-    private List<Classroom> classroom;
-    @OneToMany(mappedBy = "user")
+
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
+    private List<Classroom> classrooms;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Note> notes;
+
     private boolean active;
 }

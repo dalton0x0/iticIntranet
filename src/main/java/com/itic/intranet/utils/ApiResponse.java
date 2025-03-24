@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 @Data
 @AllArgsConstructor
@@ -12,6 +11,5 @@ import org.springframework.http.HttpStatus;
 @Builder
 public class ApiResponse {
     private String message;
-    private HttpStatus status;
     private Object response;
 }

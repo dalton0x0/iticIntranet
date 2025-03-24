@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -25,14 +24,16 @@ public class Evaluation {
     private int minValue;
     private int maxValue;
     private LocalDateTime date;
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "evaluation_user",
             joinColumns = @JoinColumn(name = "evaluation_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> users;
-    @OneToMany(mappedBy = "evaluation")
+
+    @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Note> notes;
 }

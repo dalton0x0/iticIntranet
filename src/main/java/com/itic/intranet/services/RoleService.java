@@ -2,11 +2,12 @@ package com.itic.intranet.services;
 
 import com.itic.intranet.dtos.RoleRequestDto;
 import com.itic.intranet.utils.ApiResponse;
+import org.springframework.http.ResponseEntity;
 
 public interface RoleService {
-    ApiResponse getAllRoles();
-    ApiResponse getRoleById(Long id);
-    ApiResponse addRole(RoleRequestDto roleDto);
-    ApiResponse updateRole(Long id, RoleRequestDto roleDto);
-    ApiResponse deleteRole(Long id);
+    ResponseEntity<ApiResponse> getAllRoles();
+    ResponseEntity<ApiResponse> getRoleById(Long id);
+    ResponseEntity<ApiResponse> addRole(RoleRequestDto roleDto);
+    ResponseEntity<ApiResponse> updateRole(Long id, RoleRequestDto roleDto);
+    ResponseEntity<ApiResponse> deleteRole(Long id);
 }

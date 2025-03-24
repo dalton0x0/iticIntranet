@@ -19,7 +19,8 @@ public class Classroom {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idClassroom;
     private String name;
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "classroom_user",
             joinColumns = @JoinColumn(name = "classroom_id"),

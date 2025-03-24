@@ -17,11 +17,13 @@ public class Note {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idNote;
     private int value;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evaluation_id")
     @JsonIgnore
     private Evaluation evaluation;
