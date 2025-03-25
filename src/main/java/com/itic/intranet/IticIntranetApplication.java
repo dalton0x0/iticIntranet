@@ -1,7 +1,11 @@
 package com.itic.intranet;
 
+import com.itic.intranet.dtos.ClassroomRequestDto;
+import com.itic.intranet.dtos.RoleRequestDto;
+import com.itic.intranet.dtos.UserRequestDto;
 import com.itic.intranet.models.*;
 import com.itic.intranet.repositories.*;
+import com.itic.intranet.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,28 +24,17 @@ public class IticIntranetApplication {
         SpringApplication.run(IticIntranetApplication.class, args);
     }
 
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
-    ClassroomRepository classroomRepository;
-    @Autowired
-    NoteRepository noteRepository;
-    @Autowired
-    EvaluationRepository evaluationRepository;
-
     @Bean
-    public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+    public CommandLineRunner commandLineRunner(UserService userService, RoleService roleService, ClassroomService classroomService, EvaluationService evaluationService, NoteService noteService) {
         return args -> {
-            Role student = new Role(null, "Student", null);
-            roleRepository.save(student);
+            RoleRequestDto  roleRequestDto = new RoleRequestDto("Student");
+            roleService.addRole(roleRequestDto);
+            Role studentRole = roleService.getRoleByWording("Student");
 
-            Classroom bachelorCda = new Classroom(null, "Bachelor-CDA", null);
-            classroomRepository.save(bachelorCda);
+            ClassroomRequestDto bachelorCda = new ClassroomRequestDto("Bachelor-CDA", null);
+            classroomService.addClassroom(bachelorCda);
 
-            User cheridanh = new User(null, "Chéridanh", "TSIELA", "divintsiela@gmail.com", "CTSIELA", "P@ssw0rd", student, null,  null, true);
-            userRepository.save(cheridanh);
+            UserRequestDto cheridanh = new UserRequestDto("Chéridanh", "TSIELA", "divintsiela@gmail.com", "CTSIELA", "P@ssw0rd", studentRole, null);
 
             List<User> listBachelorCdaStudents = new ArrayList<>();
             listBachelorCdaStudents.add(cheridanh);

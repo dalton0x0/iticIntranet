@@ -8,6 +8,7 @@ import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.UserService;
 import com.itic.intranet.utils.ApiResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,18 +19,16 @@ import java.util.List;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public ResponseEntity<ApiResponse> getAllUsers() {
-        List<User> allUsers = userRepository.findAll();
-        return allUsers.isEmpty()
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("No users found", allUsers))
-                : ResponseEntity.ok(new ApiResponse("List of all users", allUsers));
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     @Override
-    public ResponseEntity<ApiResponse> getAllActiveUsers() {
+    public User getAllActiveUsers() {
         List<User> activeUsers = userRepository.findByActive(true);
         return activeUsers.isEmpty()
                 ? ResponseEntity.ok(new ApiResponse("No active users found", activeUsers))
@@ -37,14 +36,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponse> getUserById(Long id) {
+    public User getUserById(Long id) {
         return userRepository.findById(id)
                 .map(user -> ResponseEntity.ok(new ApiResponse("User found", user)))
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
     }
 
     @Override
-    public ResponseEntity<ApiResponse> findByFirstnameOrLastname(String firstname, String lastName) {
+    public User findByFirstnameOrLastname(String firstname, String lastName) {
         if ((firstname == null || firstname.trim().isEmpty()) && (lastName == null || lastName.trim().isEmpty())) {
             throw new BadRequestException("Firstname or lastname is required");
         }
@@ -55,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponse> addUser(UserRequestDto userDto) {
+    public User addUser(UserRequestDto userDto) {
         validateUserRequest(userDto);
         User newUser = User.builder()
                 .firstname(userDto.getFirstname())
@@ -72,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponse> updateUser(Long id, UserRequestDto userDto) {
+    public User updateUser(Long id, UserRequestDto userDto) {
         validateUserRequest(userDto);
         return userRepository.findById(id)
                 .map(existingUser -> {
@@ -91,7 +90,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponse> deleteUser(Long id) {
+    public void deleteUser(Long id) {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setActive(false);
@@ -102,7 +101,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<ApiResponse> removeUser(Long id) {
+    public void removeUser(Long id) {
         return userRepository.findById(id)
                 .map(user -> {
                     userRepository.delete(user);

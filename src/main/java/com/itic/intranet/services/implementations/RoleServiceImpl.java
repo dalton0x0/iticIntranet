@@ -6,11 +6,7 @@ import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.models.Role;
 import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.services.RoleService;
-import com.itic.intranet.utils.ApiResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,53 +15,50 @@ import java.util.List;
 @AllArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
     @Override
-    public ResponseEntity<ApiResponse> getAllRoles() {
-        List<Role> allRoles = roleRepository.findAll();
-        return allRoles.isEmpty()
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("List of roles is empty", allRoles))
-                : ResponseEntity.ok(new ApiResponse("List of roles", allRoles));
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
     }
 
     @Override
-    public ResponseEntity<ApiResponse> getRoleById(Long id) {
-        Role role = roleRepository.findById(id)
+    public Role getRoleById(Long id) {
+        return roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-        return ResponseEntity.ok(new ApiResponse("Role found", role));
     }
 
     @Override
-    public ResponseEntity<ApiResponse> addRole(RoleRequestDto roleDto) {
+    public Role getRoleByWording(String wording) {
+        return roleRepository.findByWording(wording)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+    }
+
+    @Override
+    public Role addRole(RoleRequestDto roleDto) {
         validateRoleDto(roleDto);
         Role newRole = Role.builder()
                 .wording(roleDto.getWording().trim())
                 .build();
-        Role savedRole = roleRepository.save(newRole);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse("Role created successfully", savedRole));
+        return roleRepository.save(newRole);
     }
 
     @Override
-    public ResponseEntity<ApiResponse> updateRole(Long id, RoleRequestDto roleDto) {
+    public Role updateRole(Long id, RoleRequestDto roleDto) {
         validateRoleDto(roleDto);
-        Role updatedRole = roleRepository.findById(id)
+        return roleRepository.findById(id)
                 .map(role -> {
                     role.setWording(roleDto.getWording().trim());
                     return roleRepository.save(role);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-        return ResponseEntity.ok(new ApiResponse("Role updated successfully", updatedRole));
     }
 
     @Override
-    public ResponseEntity<ApiResponse> deleteRole(Long id) {
+    public void deleteRole(Long id) {
         Role roleToDelete = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         roleRepository.delete(roleToDelete);
-        return ResponseEntity.ok(new ApiResponse("Role deleted successfully", null));
     }
 
     private void validateRoleDto(RoleRequestDto roleDto) {
