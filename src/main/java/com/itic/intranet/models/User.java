@@ -35,6 +35,7 @@ public class User {
     @JoinColumn(name = "classroom_id")
     private Classroom classroom;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(name = "teacher_classroom",
             joinColumns = @JoinColumn(name = "teacher_id"),

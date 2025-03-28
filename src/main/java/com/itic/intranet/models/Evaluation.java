@@ -30,6 +30,7 @@ public class Evaluation {
     @JoinColumn(name = "created_by_id", nullable = false)
     private User createdBy;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "evaluation_classroom",
