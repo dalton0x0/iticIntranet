@@ -3,50 +3,51 @@ package com.itic.intranet.web;
 import com.itic.intranet.dtos.EvaluationRequestDto;
 import com.itic.intranet.services.EvaluationService;
 import com.itic.intranet.utils.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/evaluation")
-@CrossOrigin(origins = "http://localhost:63343")
+@RequestMapping("/api/v7/evaluation")
+@RequiredArgsConstructor
 public class EvaluationController {
 
-    @Autowired
-    private EvaluationService evaluationService;
-
-    @GetMapping("/test")
-    public ResponseEntity<ApiResponse> test() {
-        return ResponseEntity.ok(new ApiResponse("API TEST OK !", null));
-    }
+    private final EvaluationService evaluationService;
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getALllEvaluations() {
-        return evaluationService.getAllEvaluations();
+    public ResponseEntity<ApiResponse> getAllEvaluations() {
+        return ResponseEntity.ok(evaluationService.getAllEvaluations());
     }
 
-    @GetMapping("/show/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getEvaluationById(@PathVariable Long id) {
-        return evaluationService.getEvaluationById(id);
+        return ResponseEntity.ok(evaluationService.getEvaluationById(id));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse> getEvaluationByTitle(@RequestParam(required = false) String title) {
-        return evaluationService.getEvaluationByTitle(title);
+    @PostMapping("/add/teacher/{teacherId}")
+    public ResponseEntity<ApiResponse> createEvaluation(@RequestBody EvaluationRequestDto evaluationDto, @PathVariable Long teacherId) {
+        ApiResponse response = evaluationService.createEvaluation(evaluationDto, teacherId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addEvaluation(@RequestBody EvaluationRequestDto evaluationDto) {
-        return evaluationService.addEvaluation(evaluationDto);
-    }
-
-    @PutMapping("update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse> updateEvaluation(@PathVariable Long id, @RequestBody EvaluationRequestDto evaluationDto) {
-        return evaluationService.updateEvaluation(id, evaluationDto);
+        return ResponseEntity.ok(evaluationService.updateEvaluation(id, evaluationDto));
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse> deleteEvaluation(@PathVariable Long id) {
-        return evaluationService.deleteEvaluation(id);
+        return ResponseEntity.ok(evaluationService.deleteEvaluation(id));
     }
-} 
+
+    @PostMapping("/{evaluationId}/classrooms/add/{classroomId}")
+    public ResponseEntity<ApiResponse> addClassroomToEvaluation(@PathVariable Long evaluationId, @PathVariable Long classroomId) {
+        return ResponseEntity.ok(evaluationService.addClassroomToEvaluation(evaluationId, classroomId));
+    }
+
+    @GetMapping("/{evaluationId}/results")
+    public ResponseEntity<ApiResponse> getEvaluationResults(@PathVariable Long evaluationId) {
+        return ResponseEntity.ok(evaluationService.getEvaluationResults(evaluationId));
+    }
+}

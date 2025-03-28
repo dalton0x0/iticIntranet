@@ -3,50 +3,61 @@ package com.itic.intranet.web;
 import com.itic.intranet.dtos.ClassroomRequestDto;
 import com.itic.intranet.services.ClassroomService;
 import com.itic.intranet.utils.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/classroom")
-@CrossOrigin(origins = "http://localhost:63343")
+@RequestMapping("/api/v7/classroom")
+@RequiredArgsConstructor
 public class ClassroomController {
 
-    @Autowired
-    private ClassroomService classroomService;
-
-    @GetMapping("/test")
-    public ResponseEntity<ApiResponse> test() {
-        return ResponseEntity.ok(new ApiResponse("API TEST OK !", null));
-    }
+    private final ClassroomService classroomService;
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getALllClassrooms() {
-        return classroomService.getAllClassrooms();
+    public ResponseEntity<ApiResponse> getAllClassrooms() {
+        return ResponseEntity.ok(classroomService.getAllClassrooms());
     }
 
-    @GetMapping("/show/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getClassroomById(@PathVariable Long id) {
-        return classroomService.getClassroomById(id);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse> getClassroomByName(@RequestParam String name) {
-        return classroomService.getClassroomByName(name);
+        return ResponseEntity.ok(classroomService.getClassroomById(id));
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addClassroom(@RequestBody ClassroomRequestDto classroomDto) {
-        return classroomService.addClassroom(classroomDto);
+    public ResponseEntity<ApiResponse> createClassroom(@RequestBody ClassroomRequestDto classroomDto) {
+        ApiResponse response = classroomService.createClassroom(classroomDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse> updateClassroom(@PathVariable Long id, @RequestBody ClassroomRequestDto classroomDto) {
-        return classroomService.updateClassroom(id, classroomDto);
+        return ResponseEntity.ok(classroomService.updateClassroom(id, classroomDto));
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse> deleteClassroom(@PathVariable Long id) {
-        return classroomService.deleteClassroom(id);
+        return ResponseEntity.ok(classroomService.deleteClassroom(id));
+    }
+
+    @PostMapping("/{classroomId}/students/add/{studentId}")
+    public ResponseEntity<ApiResponse> addStudent(@PathVariable Long classroomId, @PathVariable Long studentId) {
+        return ResponseEntity.ok(classroomService.addStudentToClassroom(classroomId, studentId));
+    }
+
+    @DeleteMapping("/{classroomId}/students/remove/{studentId}")
+    public ResponseEntity<ApiResponse> removeStudent(@PathVariable Long classroomId, @PathVariable Long studentId) {
+        return ResponseEntity.ok(classroomService.removeStudentFromClassroom(classroomId, studentId));
+    }
+
+    @GetMapping("/{classroomId}/students")
+    public ResponseEntity<ApiResponse> getClassroomStudents(@PathVariable Long classroomId) {
+        return ResponseEntity.ok(classroomService.getClassroomStudents(classroomId));
+    }
+
+    @GetMapping("/{classroomId}/teachers")
+    public ResponseEntity<ApiResponse> getClassroomTeachers(@PathVariable Long classroomId) {
+        return ResponseEntity.ok(classroomService.getClassroomTeachers(classroomId));
     }
 }

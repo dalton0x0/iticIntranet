@@ -1,82 +1,204 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.dtos.ClassroomDetailedResponseDto;
 import com.itic.intranet.dtos.ClassroomRequestDto;
+import com.itic.intranet.dtos.ClassroomResponseDto;
+import com.itic.intranet.dtos.UserMinimalDto;
+import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.models.Classroom;
+import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.ClassroomRepository;
+import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.ClassroomService;
 import com.itic.intranet.utils.ApiResponse;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ClassroomServiceImpl implements ClassroomService {
 
     private final ClassroomRepository classroomRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public ResponseEntity<ApiResponse> getAllClassrooms() {
-        List<Classroom> allClassrooms = classroomRepository.findAll();
-        return allClassrooms.isEmpty()
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("No classrooms found", allClassrooms))
-                : ResponseEntity.ok(new ApiResponse("List of classrooms", allClassrooms));
-    }
+    public ApiResponse getAllClassrooms() {
+        List<Classroom> classrooms = classroomRepository.findAll();
 
-    @Override
-    public ResponseEntity<ApiResponse> getClassroomById(Long id) {
-        return classroomRepository.findById(id)
-                .map(classroom -> ResponseEntity.ok(new ApiResponse("Classroom found", classroom)))
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found with ID: " + id));
-    }
-
-    @Override
-    public ResponseEntity<ApiResponse> getClassroomByName(String classroomName) {
-        List<Classroom> classrooms = classroomRepository.findByNameContaining(classroomName);
-        if (classrooms.isEmpty()) {
-            throw new ResourceNotFoundException("Classroom not found with name: " + classroomName);
-        }
-        return ResponseEntity.ok(new ApiResponse("Classroom(s) found", classrooms));
-    }
-
-    @Override
-    public ResponseEntity<ApiResponse> addClassroom(ClassroomRequestDto classroomDto) {
-        if (classroomDto.getName() == null || classroomDto.getName().trim().isEmpty()) {
-            throw new BadRequestException("Classroom name is required");
-        }
-        Classroom newClassroom = Classroom.builder()
-                .name(classroomDto.getName())
+        return ApiResponse.builder()
+                .message("Liste des classes")
+                .response(classrooms.stream().map(this::convertToDto).toList())
                 .build();
-        Classroom savedClassroom = classroomRepository.save(newClassroom);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Classroom created successfully", savedClassroom));
     }
 
     @Override
-    public ResponseEntity<ApiResponse> updateClassroom(Long id, ClassroomRequestDto classroomDto) {
-        if (classroomDto.getName() == null || classroomDto.getName().trim().isEmpty()) {
-            throw new BadRequestException("Classroom name is required");
+    public ApiResponse getClassroomById(Long id) {
+        Classroom classroom = classroomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
+
+        return ApiResponse.builder()
+                .message("Classe trouvée")
+                .response(convertToDetailedDto(classroom))
+                .build();
+    }
+
+    @Override
+    public ApiResponse createClassroom(ClassroomRequestDto classroomDto) {
+        validateClassroomRequest(classroomDto);
+
+        Classroom classroom = new Classroom();
+        classroom.setName(classroomDto.getName());
+
+        Classroom savedClassroom = classroomRepository.save(classroom);
+        return ApiResponse.builder()
+                .message("Classe créée avec succès")
+                .response(convertToDto(savedClassroom))
+                .build();
+    }
+
+    @Override
+    public ApiResponse updateClassroom(Long id, ClassroomRequestDto classroomDto) {
+        Classroom classroom = classroomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
+
+        validateClassroomRequest(classroomDto);
+        classroom.setName(classroomDto.getName());
+
+        Classroom updatedClassroom = classroomRepository.save(classroom);
+        return ApiResponse.builder()
+                .message("Classe mise à jour")
+                .response(convertToDto(updatedClassroom))
+                .build();
+    }
+
+    @Override
+    public ApiResponse deleteClassroom(Long id) {
+        Classroom classroom = classroomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
+
+        long studentCount = userRepository.countByClassroomIdAndRoleType(id, RoleType.STUDENT);
+        if (studentCount > 0) {
+            throw new BadRequestException("Impossible de supprimer : la classe contient " + studentCount + " étudiant(s)");
         }
-        return classroomRepository.findById(id)
-                .map(existingClassroom -> {
-                    existingClassroom.setName(classroomDto.getName());
-                    Classroom updatedClassroom = classroomRepository.save(existingClassroom);
-                    return ResponseEntity.ok(new ApiResponse("Classroom updated successfully", updatedClassroom));
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found with ID: " + id));
+
+        classroomRepository.delete(classroom);
+        return ApiResponse.builder()
+                .message("Classe supprimée")
+                .build();
     }
 
     @Override
-    public ResponseEntity<ApiResponse> deleteClassroom(Long id) {
-        return classroomRepository.findById(id)
-                .map(classroom -> {
-                    classroomRepository.delete(classroom);
-                    return ResponseEntity.ok(new ApiResponse("Classroom deleted successfully", null));
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found with ID: " + id));
+    public ApiResponse addStudentToClassroom(Long classroomId, Long studentId) {
+        Classroom classroom = classroomRepository.findById(classroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
+
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Étudiant non trouvé"));
+
+        if (!student.getRole().getRoleType().equals(RoleType.STUDENT)) {
+            throw new BadRequestException("Seuls les étudiants peuvent être ajoutés à une classe");
+        }
+
+        if (student.getClassroom() != null) {
+            throw new BadRequestException("L'étudiant est déjà dans une classe");
+        }
+
+        student.setClassroom(classroom);
+        userRepository.save(student);
+
+        return ApiResponse.builder()
+                .message("Étudiant ajouté à la classe")
+                .response(convertToDetailedDto(classroom))
+                .build();
+    }
+
+    @Override
+    public ApiResponse removeStudentFromClassroom(Long classroomId, Long studentId) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Étudiant non trouvé"));
+
+        if (student.getClassroom() == null || !student.getClassroom().getId().equals(classroomId)) {
+            throw new BadRequestException("L'étudiant n'est pas dans cette classe");
+        }
+
+        student.setClassroom(null);
+        userRepository.save(student);
+
+        return ApiResponse.builder()
+                .message("Étudiant retiré de la classe")
+                .build();
+    }
+
+    @Override
+    public ApiResponse getClassroomStudents(Long classroomId) {
+
+        if (!classroomRepository.existsById(classroomId)) {
+            throw new ResourceNotFoundException("Classe non trouvée");
+        }
+
+        List<User> students = userRepository.findByClassroomIdAndRoleType(
+                classroomId,
+                RoleType.STUDENT
+        );
+
+        return ApiResponse.builder()
+                .message(students.size() + " étudiant(s) trouvé(s)")
+                .response(students.stream()
+                        .map(this::convertToUserMinimalDto)
+                        .toList())
+                .build();
+    }
+
+    @Override
+    public ApiResponse getClassroomTeachers(Long classroomId) {
+        if (!classroomRepository.existsById(classroomId)) {
+            throw new ResourceNotFoundException("Classe non trouvée");
+        }
+        List<User> teachers = userRepository.findTeachersByClassroomId(classroomId);
+
+        return ApiResponse.builder()
+                .message(teachers.size() + " enseignant(s) trouvé(s)")
+                .response(teachers.stream()
+                        .map(this::convertToUserMinimalDto)
+                        .toList())
+                .build();
+    }
+
+    private void validateClassroomRequest(ClassroomRequestDto dto) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new BadRequestException("Le nom de la classe est obligatoire");
+        }
+    }
+
+    private ClassroomResponseDto convertToDto(Classroom classroom) {
+        return ClassroomResponseDto.builder()
+                .id(classroom.getId())
+                .name(classroom.getName())
+                .build();
+    }
+
+    private ClassroomDetailedResponseDto convertToDetailedDto(Classroom classroom) {
+        ClassroomDetailedResponseDto dto = new ClassroomDetailedResponseDto();
+        dto.setId(classroom.getId());
+        dto.setName(classroom.getName());
+
+        dto.setStudents(userRepository.findByClassroomIdAndRoleType(
+                classroom.getId(),
+                RoleType.STUDENT
+        ).stream().map(this::convertToUserMinimalDto).toList());
+
+        return dto;
+    }
+
+    private UserMinimalDto convertToUserMinimalDto(User user) {
+        return UserMinimalDto.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .build();
     }
 }

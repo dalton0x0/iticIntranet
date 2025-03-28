@@ -1,130 +1,181 @@
 package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.UserRequestDto;
+import com.itic.intranet.dtos.UserResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
+import com.itic.intranet.models.Role;
 import com.itic.intranet.models.User;
+import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.UserService;
 import com.itic.intranet.utils.ApiResponse;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public User getAllActiveUsers() {
-        List<User> activeUsers = userRepository.findByActive(true);
-        return activeUsers.isEmpty()
-                ? ResponseEntity.ok(new ApiResponse("No active users found", activeUsers))
-                : ResponseEntity.ok(new ApiResponse("List of active users", activeUsers));
-    }
-
-    @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .map(user -> ResponseEntity.ok(new ApiResponse("User found", user)))
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
-    }
-
-    @Override
-    public User findByFirstnameOrLastname(String firstname, String lastName) {
-        if ((firstname == null || firstname.trim().isEmpty()) && (lastName == null || lastName.trim().isEmpty())) {
-            throw new BadRequestException("Firstname or lastname is required");
-        }
-        List<User> users = userRepository.findUserByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(firstname, lastName);
-        return users.isEmpty()
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("No users found", users))
-                : ResponseEntity.ok(new ApiResponse("Users found", users));
-    }
-
-    @Override
-    public User addUser(UserRequestDto userDto) {
-        validateUserRequest(userDto);
-        User newUser = User.builder()
-                .firstname(userDto.getFirstname())
-                .lastname(userDto.getLastname())
-                .email(userDto.getEmail())
-                .username(userDto.getUsername())
-                .password(userDto.getPassword())
-                .role(userDto.getRole())
-                .classrooms(userDto.getClassroom())
-                .active(true)
+    public ApiResponse getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return ApiResponse.builder()
+                .message("Liste des utilisateurs")
+                .response(users.stream().map(this::convertToDto).toList())
                 .build();
-        User savedUser = userRepository.save(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("User created successfully", savedUser));
     }
 
     @Override
-    public User updateUser(Long id, UserRequestDto userDto) {
+    public ApiResponse getAllActiveUsers() {
+        List<User> activeUsers = userRepository.findByActive(true);
+        return ApiResponse.builder()
+                .message("Liste des utilisateurs actifs")
+                .response(activeUsers.stream().map(this::convertToDto).toList())
+                .build();
+    }
+
+    @Override
+    public ApiResponse getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+        return ApiResponse.builder()
+                .message("Utilisateur trouvé")
+                .response(convertToDto(user))
+                .build();
+    }
+
+    @Override
+    public ApiResponse searchUsers(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new BadRequestException("Recherche incorrecte");
+        }
+
+        List<User> users = userRepository
+                .findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(keyword, keyword);
+
+        return ApiResponse.builder()
+                .message("Résultats de la recherche")
+                .response(users.stream().map(this::convertToDto).toList())
+                .build();
+    }
+
+    @Override
+    public ApiResponse createUser(UserRequestDto userDto) {
         validateUserRequest(userDto);
-        return userRepository.findById(id)
-                .map(existingUser -> {
-                    existingUser.setFirstname(userDto.getFirstname());
-                    existingUser.setLastname(userDto.getLastname());
-                    existingUser.setEmail(userDto.getEmail());
-                    existingUser.setUsername(userDto.getUsername());
-                    existingUser.setPassword(userDto.getPassword());
-                    existingUser.setRole(userDto.getRole());
-                    existingUser.setClassrooms(userDto.getClassroom());
-                    existingUser.setActive(true);
-                    User updatedUser = userRepository.save(existingUser);
-                    return ResponseEntity.ok(new ApiResponse("User updated successfully", updatedUser));
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+        checkUniqueConstraints(userDto);
+
+        User user = new User();
+        mapDtoToEntity(userDto, user);
+        user.setActive(true);
+
+        User savedUser = userRepository.save(user);
+        return ApiResponse.builder()
+                .message("Utilisateur créé avec succès")
+                .response(convertToDto(savedUser))
+                .build();
     }
 
     @Override
-    public void deleteUser(Long id) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setActive(false);
-                    userRepository.save(user);
-                    return ResponseEntity.ok(new ApiResponse("User deactivated successfully", user));
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+    public ApiResponse updateUser(Long id, UserRequestDto userDto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+
+        validateUserRequest(userDto);
+        mapDtoToEntity(userDto, user);
+
+        User updatedUser = userRepository.save(user);
+        return ApiResponse.builder()
+                .message("Utilisateur mis à jour")
+                .response(convertToDto(updatedUser))
+                .build();
     }
 
     @Override
-    public void removeUser(Long id) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    userRepository.delete(user);
-                    return ResponseEntity.ok(new ApiResponse("User permanently deleted", null));
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+    public ApiResponse deactivateUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé"));
+
+        if (!user.isActive()) {
+            throw new BadRequestException("L'utilisateur est déjà désactivé");
+        }
+
+        user.setActive(false);
+        userRepository.save(user);
+        return ApiResponse.builder()
+                .message("Utilisateur désactivé avec succès")
+                .response(convertToDto(user))
+                .build();
     }
 
-    private void validateUserRequest(UserRequestDto userDto) {
-        if (userDto.getFirstname() == null || userDto.getFirstname().trim().isEmpty()) {
-            throw new BadRequestException("Firstname is required");
+    @Override
+    public ApiResponse permanentlyDeleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Utilisateur non trouvé");
         }
-        if (userDto.getLastname() == null || userDto.getLastname().trim().isEmpty()) {
-            throw new BadRequestException("Lastname is required");
+
+        userRepository.deleteById(id);
+        return ApiResponse.builder()
+                .message("Utilisateur supprimé définitivement")
+                .build();
+    }
+
+    private void validateUserRequest(UserRequestDto dto) {
+        if (dto.getFirstname() == null || dto.getFirstname().trim().isEmpty()) {
+            throw new BadRequestException("Le prénom est obligatoire");
         }
-        if (userDto.getEmail() == null || !userDto.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new BadRequestException("Invalid email format");
+        if (dto.getLastname() == null || dto.getLastname().trim().isEmpty()) {
+            throw new BadRequestException("Le nom est obligatoire");
         }
-        if (userDto.getUsername() == null || userDto.getUsername().trim().isEmpty()) {
-            throw new BadRequestException("Username is required");
+        if (dto.getEmail() == null || !dto.getEmail().contains("@")) {
+            throw new BadRequestException("Email invalide");
         }
-        if (userDto.getPassword() == null || userDto.getPassword().length() < 8) {
-            throw new BadRequestException("Password must be at least 8 characters");
+        if (dto.getUsername() == null || dto.getUsername().trim().isEmpty()) {
+            throw new BadRequestException("Le nom d'utilisateur est obligatoire");
         }
+        if (dto.getPassword() == null || dto.getPassword().length() < 6) {
+            throw new BadRequestException("Le mot de passe doit contenir au moins 6 caractères");
+        }
+        if (dto.getRoleType() == null) {
+            throw new BadRequestException("Le rôle est obligatoire");
+        }
+    }
+
+    private void checkUniqueConstraints(UserRequestDto dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new BadRequestException("Cet email est déjà utilisé");
+        }
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            throw new BadRequestException("Ce nom d'utilisateur est déjà pris");
+        }
+    }
+
+    private void mapDtoToEntity(UserRequestDto dto, User user) {
+        user.setFirstname(dto.getFirstname().trim());
+        user.setLastname(dto.getLastname().trim());
+        user.setEmail(dto.getEmail().trim().toLowerCase());
+        user.setUsername(dto.getUsername().trim());
+        user.setPassword(dto.getPassword());
+
+        Role role = roleRepository.findByRoleType(dto.getRoleType())
+                .orElseThrow(() -> new BadRequestException("Rôle invalide"));
+        user.setRole(role);
+    }
+
+    private UserResponseDto convertToDto(User user) {
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .roleType(user.getRole().getRoleType())
+                .active(user.isActive())
+                .build();
     }
 }

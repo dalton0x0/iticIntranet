@@ -1,44 +1,48 @@
 package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.NoteRequestDto;
-import com.itic.intranet.models.Evaluation;
-import com.itic.intranet.models.User;
 import com.itic.intranet.services.NoteService;
 import com.itic.intranet.utils.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/note")
-@CrossOrigin(origins = "http://localhost:63343")
+@RequestMapping("/api/v7/note")
+@RequiredArgsConstructor
 public class NoteController {
 
-    @Autowired
-    private NoteService noteService;
+    private final NoteService noteService;
 
-    @GetMapping("/test")
-    public ResponseEntity<ApiResponse> test() {
-        return ResponseEntity.ok(new ApiResponse("API TEST OK !", null));
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getNoteById(@PathVariable Long id) {
+        return ResponseEntity.ok(noteService.getNoteById(id));
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getALllNotes() {
-        return noteService.getAllNotes();
+    @PostMapping("/all")
+    public ResponseEntity<ApiResponse> createNote(@RequestBody NoteRequestDto noteDto) {
+        ApiResponse response = noteService.createNote(noteDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addNote(@RequestBody NoteRequestDto noteDto, User user, Evaluation evaluation) {
-        return noteService.addNote(noteDto, user, evaluation);
-    }
-
-    @PutMapping("update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse> updateNote(@PathVariable Long id, @RequestBody NoteRequestDto noteDto) {
-        return noteService.updateNote(id, noteDto);
+        return ResponseEntity.ok(noteService.updateNote(id, noteDto));
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse> deleteNote(@PathVariable Long id) {
-        return noteService.deleteNote(id);
+        return ResponseEntity.ok(noteService.deleteNote(id));
+    }
+
+    @GetMapping("/evaluation/{evaluationId}")
+    public ResponseEntity<ApiResponse> getNotesByEvaluation(@PathVariable Long evaluationId) {
+        return ResponseEntity.ok(noteService.getNotesByEvaluation(evaluationId));
+    }
+
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<ApiResponse> getNotesByStudent(@PathVariable Long studentId) {
+        return ResponseEntity.ok(noteService.getNotesByStudent(studentId));
     }
 }

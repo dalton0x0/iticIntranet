@@ -1,71 +1,59 @@
 package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.UserRequestDto;
-import com.itic.intranet.models.User;
 import com.itic.intranet.services.UserService;
 import com.itic.intranet.utils.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/user")
-@CrossOrigin(origins = "http://localhost:63343")
+@RequestMapping("/api/v7/user")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
-
-    @GetMapping("/test")
-    public ResponseEntity<ApiResponse> test() {
-        return ResponseEntity.ok(new ApiResponse("API TEST OK !", null));
-    }
+    private final UserService userService;
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getAllUsers() {
-        List<User> allUsers = userService.getAllUsers();
-        return allUsers.isEmpty()
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("No users found", allUsers))
-                : ResponseEntity.ok(new ApiResponse("List of all users", allUsers));
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/active")
     public ResponseEntity<ApiResponse> getActiveUsers() {
-        return userService.getAllActiveUsers();
+        return ResponseEntity.ok(userService.getAllActiveUsers());
     }
 
-    @GetMapping("/show/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse> findByFirstnameOrLastname(
-            @RequestParam(required = false) String firstname,
-            @RequestParam(required = false) String lastname) {
-        return userService.findByFirstnameOrLastname(firstname, lastname);
+    public ResponseEntity<ApiResponse> searchUsers(@RequestParam String keyword) {
+        return ResponseEntity.ok(userService.searchUsers(keyword));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addUser(@RequestBody UserRequestDto userDto) {
-        return userService.addUser(userDto);
+    @PostMapping
+    public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequestDto userDto) {
+        ApiResponse response = userService.createUser(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse> updateUser(@PathVariable Long id, @RequestBody UserRequestDto userDto) {
-        return userService.updateUser(id, userDto);
+        return ResponseEntity.ok(userService.updateUser(id, userDto));
+    }
+
+    @PatchMapping("/deactivate/{id}")
+    public ResponseEntity<ApiResponse> deactivateUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.deactivateUser(id));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long id) {
-        return userService.deleteUser(id);
-    }
-
-    @DeleteMapping("/remove/{id}")
-    public ResponseEntity<ApiResponse> removeUser(@PathVariable Long id) {
-        return userService.removeUser(id);
+        return ResponseEntity.ok(userService.permanentlyDeleteUser(id));
     }
 }

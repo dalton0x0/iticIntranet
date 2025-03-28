@@ -1,39 +1,58 @@
 package com.itic.intranet.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.itic.intranet.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class User {
-
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUser;
+    private Long id;
     private String firstname;
     private String lastname;
+    @Column(unique = true)
     private String email;
+    @Column(unique = true)
     private String username;
-    @JsonIgnore
     private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
-    private List<Classroom> classrooms;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "classroom_id")
+    private Classroom classroom;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Note> notes;
+    @ManyToMany
+    @JoinTable(name = "teacher_classroom",
+            joinColumns = @JoinColumn(name = "teacher_id"),
+            inverseJoinColumns = @JoinColumn(name = "classroom_id"))
+    @JsonIgnore
+    private List<Classroom> taughtClassrooms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Note> notes = new ArrayList<>();
 
     private boolean active;
+
+    public boolean isTeacher() {
+        return this.role.getRoleType() == RoleType.TEACHER;
+    }
+
+    public boolean isStudent() {
+        return this.role.getRoleType() == RoleType.STUDENT;
+    }
 }

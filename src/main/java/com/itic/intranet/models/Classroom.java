@@ -7,25 +7,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Classroom {
-
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idClassroom;
+    private Long id;
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "classroom_user",
-            joinColumns = @JoinColumn(name = "classroom_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
+    @ManyToMany(mappedBy = "classrooms")  // mappedBy fait référence à Evaluation.classrooms
     @JsonIgnore
-    private List<User> users;
+    private List<Evaluation> evaluations = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "taughtClassrooms")
+    @JsonIgnore
+    private List<User> teachers = new ArrayList<>();
 }

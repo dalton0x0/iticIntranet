@@ -8,32 +8,38 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Evaluation {
-
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idEvaluation;
+    private Long id;
+
     private String title;
     private String description;
     private int minValue;
     private int maxValue;
     private LocalDateTime date;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "evaluation_user",
-            joinColumns = @JoinColumn(name = "evaluation_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> users;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_id", nullable = false)
+    private User createdBy;
 
-    @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ManyToMany
+    @JoinTable(
+            name = "evaluation_classroom",
+            joinColumns = @JoinColumn(name = "evaluation_id"),
+            inverseJoinColumns = @JoinColumn(name = "classroom_id")
+    )
     @JsonIgnore
-    private List<Note> notes;
+    private List<Classroom> classrooms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Note> notes = new ArrayList<>();
 }
