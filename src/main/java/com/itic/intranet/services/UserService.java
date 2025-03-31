@@ -14,5 +14,6 @@ public interface UserService {
     User updateUser(Long id, UserRequestDto userDto);
     void deactivateUser(Long id);
     void permanentlyDeleteUser(Long id);
+    void addRoleToUser(Long userId, Long roleId);
     void assignClassroomToUser(Long userId, Long classroomId);
 }

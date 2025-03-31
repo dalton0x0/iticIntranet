@@ -81,10 +81,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void permanentlyDeleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found");
+        User user = getUserById(id);
+        userRepository.deleteById(user.getId());
+    }
+
+    @Override
+    public void addRoleToUser(Long userId, Long roleId) {
+        User user = getUserById(userId);
+        Role role = roleRepository.findById(roleId).orElseThrow(
+                () -> new ResourceNotFoundException("Role not found")
+        );
+        user.setRole(role);
+        userRepository.save(user);
+    }
+
+    public void assignClassroomToUser(Long userId, Long classroomId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+
+        Classroom classroom = classroomRepository.findById(classroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+
+        if (user.getRole().getRoleType() == RoleType.TEACHER) {
+            user.getTaughtClassrooms().add(classroom);
+        } else if (user.getRole().getRoleType() == RoleType.STUDENT) {
+            if (user.getClassroom() != null) {
+                throw new BadRequestException("A student can only have one class");
+            }
+            user.setClassroom(classroom);
         }
-        userRepository.deleteById(id);
+        userRepository.save(user);
     }
 
     private void validateUserRequest(UserRequestDto dto) {
@@ -127,23 +153,5 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByRoleType(dto.getRoleType())
                 .orElseThrow(() -> new BadRequestException("Invalid RoleType"));
         user.setRole(role);
-    }
-
-    public void assignClassroomToUser(Long userId, Long classroomId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
-        if (user.getRole().getRoleType() == RoleType.TEACHER) {
-            user.getTaughtClassrooms().add(classroom);
-        } else if (user.getRole().getRoleType() == RoleType.STUDENT) {
-            if (user.getClassroom() != null) {
-                throw new BadRequestException("A student can only have one class");
-            }
-            user.setClassroom(classroom);
-        }
-        userRepository.save(user);
     }
 }

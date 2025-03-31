@@ -35,6 +35,10 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        if (user == null) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -42,7 +46,7 @@ public class UserController {
     public ResponseEntity<List<User>> searchUsers(@RequestParam String keyword) {
         List<User> users = userService.searchUsers(keyword);
         return users.isEmpty()
-                ? ResponseEntity.noContent().build()
+                ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(users);
     }
 
@@ -54,6 +58,9 @@ public class UserController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequestDto userDto) {
+        if(userDto == null) {
+            return ResponseEntity.badRequest().build();
+        }
         User updatedUser = userService.updateUser(id, userDto);
         return ResponseEntity.ok(updatedUser);
     }
@@ -65,8 +72,8 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> permanentlyDeleteUser(@PathVariable Long id) {
         userService.permanentlyDeleteUser(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

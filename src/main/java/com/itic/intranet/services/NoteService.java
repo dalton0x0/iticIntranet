@@ -2,7 +2,6 @@ package com.itic.intranet.services;
 
 import com.itic.intranet.dtos.NoteRequestDto;
 import com.itic.intranet.dtos.NoteResponseDto;
-import com.itic.intranet.models.Note;
 
 import java.util.List;
 
