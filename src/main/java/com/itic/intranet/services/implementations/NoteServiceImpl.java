@@ -26,52 +26,47 @@ public class NoteServiceImpl implements NoteService {
     private final EvaluationRepository evaluationRepository;
 
     @Override
-    public ApiResponse getNoteById(Long id) {
-        Note note = noteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Note non trouvée"));
-
-        return ApiResponse.builder()
-                .message("Note trouvée")
-                .response(convertToDto(note))
-                .build();
+    public List<NoteResponseDto> getAllNotes() {
+        List<Note> notes = noteRepository.findAll();
+        return notes.stream().map(this::convertToDto).toList();
     }
 
     @Override
-    public ApiResponse createNote(NoteRequestDto noteDto) {
+    public NoteResponseDto getNoteById(Long id) {
+        Note note = noteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Note non trouvée"));
+        return convertToDto(note);
+    }
+
+    @Override
+    public NoteResponseDto createNote(NoteRequestDto noteDto) {
         if (noteDto == null) {
             throw new BadRequestException("Les données de la note sont requises");
         }
-
         validateNoteRequest(noteDto);
 
         User student = userRepository.findById(noteDto.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Étudiant non trouvé"));
 
-        if (!student.isStudent()) {
+        if (student.isTeacher()) {
             throw new BadRequestException("Seuls les étudiants peuvent recevoir des notes");
         }
 
         Evaluation evaluation = evaluationRepository.findById(noteDto.getEvaluationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
 
-        if (!isStudentInEvaluationClass(student, evaluation)) {
-            throw new BadRequestException("L'étudiant n'est pas concerné par cette évaluation");
-        }
-
-        Note note = new Note();
-        note.setValue(noteDto.getValue());
-        note.setUser(student);
-        note.setEvaluation(evaluation);
+        var note = Note.builder()
+                .value(noteDto.getValue())
+                .user(student)
+                .evaluation(evaluation)
+                .build();
 
         Note savedNote = noteRepository.save(note);
-        return ApiResponse.builder()
-                .message("Note enregistrée avec succès")
-                .response(convertToDto(savedNote))
-                .build();
+        return convertToDto(savedNote);
     }
 
     @Override
-    public ApiResponse updateNote(Long id, NoteRequestDto noteDto) {
+    public NoteResponseDto updateNote(Long id, NoteRequestDto noteDto) {
         Note note = noteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Note non trouvée"));
 
@@ -79,39 +74,26 @@ public class NoteServiceImpl implements NoteService {
         note.setValue(noteDto.getValue());
 
         Note updatedNote = noteRepository.save(note);
-        return ApiResponse.builder()
-                .message("Note mise à jour")
-                .response(convertToDto(updatedNote))
-                .build();
+        return convertToDto(updatedNote);
     }
 
     @Override
-    public ApiResponse deleteNote(Long id) {
+    public void deleteNote(Long id) {
         Note note = noteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Note non trouvée"));
-
         noteRepository.delete(note);
-        return ApiResponse.builder()
-                .message("Note supprimée")
-                .build();
     }
 
     @Override
-    public ApiResponse getNotesByEvaluation(Long evaluationId) {
+    public List<NoteResponseDto> getNotesByEvaluation(Long evaluationId) {
         List<Note> notes = noteRepository.findByEvaluationId(evaluationId);
-        return ApiResponse.builder()
-                .message(notes.size() + " note(s) trouvée(s)")
-                .response(notes.stream().map(this::convertToDto).toList())
-                .build();
+        return notes.stream().map(this::convertToDto).toList();
     }
 
     @Override
-    public ApiResponse getNotesByStudent(Long studentId) {
+    public List<NoteResponseDto> getNotesByStudent(Long studentId) {
         List<Note> notes = noteRepository.findByUserId(studentId);
-        return ApiResponse.builder()
-                .message(notes.size() + " note(s) trouvée(s)")
-                .response(notes.stream().map(this::convertToDto).toList())
-                .build();
+        return notes.stream().map(this::convertToDto).toList();
     }
 
     private boolean isStudentInEvaluationClass(User student, Evaluation evaluation) {

@@ -1,16 +1,21 @@
 package com.itic.intranet.services;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
-import com.itic.intranet.utils.ApiResponse;
+import com.itic.intranet.dtos.UserMinimalDto;
+import com.itic.intranet.models.Classroom;
+
+import java.util.List;
 
 public interface ClassroomService {
-    ApiResponse getAllClassrooms();
-    ApiResponse getClassroomById(Long id);
-    ApiResponse createClassroom(ClassroomRequestDto classroomDto);
-    ApiResponse updateClassroom(Long id, ClassroomRequestDto classroomDto);
-    ApiResponse deleteClassroom(Long id);
-    ApiResponse addStudentToClassroom(Long classroomId, Long studentId);
-    ApiResponse removeStudentFromClassroom(Long classroomId, Long studentId);
-    ApiResponse getClassroomStudents(Long classroomId);
-    ApiResponse getClassroomTeachers(Long classroomId);
+    List<Classroom> getAllClassrooms();
+    Classroom getClassroomById(Long id);
+    Classroom createClassroom(ClassroomRequestDto classroomDto);
+    Classroom updateClassroom(Long id, ClassroomRequestDto classroomDto);
+    void deleteClassroom(Long id);
+    Classroom addStudentToClassroom(Long classroomId, Long studentId);
+    void removeStudentFromClassroom(Long classroomId, Long studentId);
+    Classroom addTeacherToClassroom(Long classroomId, Long teacherId);
+    Classroom removeTeacherFromClassroom(Long classroomId, Long teacherId);
+    List<UserMinimalDto>  getClassroomStudents(Long classroomId);
+    List<UserMinimalDto>  getClassroomTeachers(Long classroomId);
 }

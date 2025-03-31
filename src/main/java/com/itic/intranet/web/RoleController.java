@@ -1,43 +1,50 @@
 package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.RoleRequestDto;
+import com.itic.intranet.models.Role;
 import com.itic.intranet.services.RoleService;
-import com.itic.intranet.utils.ApiResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v7/role")
-@RequiredArgsConstructor
+@RequestMapping("/api/v9/role")
 public class RoleController {
 
-    private final RoleService roleService;
+    @Autowired
+    private RoleService roleService;
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getAllRoles() {
-        return ResponseEntity.ok(roleService.getAllRoles());
+    public ResponseEntity<List<Role>> getAllRoles() {
+        List<Role> roles = roleService.getAllRoles();
+        return roles.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(roles);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getRoleById(@PathVariable Long id) {
+    public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
         return ResponseEntity.ok(roleService.getRoleById(id));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse> createRole(@RequestBody RoleRequestDto roleDto) {
-        ApiResponse response = roleService.createRole(roleDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PostMapping
+    public ResponseEntity<Role> createRole(@RequestBody RoleRequestDto roleDto) {
+        Role role = roleService.createRole(roleDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(role);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse> updateRole(@PathVariable Long id, @RequestBody RoleRequestDto roleDto) {
-        return ResponseEntity.ok(roleService.updateRole(id, roleDto));
+    public ResponseEntity<Role> updateRole(@PathVariable Long id, @RequestBody RoleRequestDto roleDto) {
+        Role updatedRole = roleService.updateRole(id, roleDto);
+        return ResponseEntity.ok(updatedRole);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResponse> deleteRole(@PathVariable Long id) {
-        return ResponseEntity.ok(roleService.deleteRole(id));
+    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
+        roleService.deleteRole(id);
+        return ResponseEntity.noContent().build();
     }
 }

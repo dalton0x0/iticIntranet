@@ -1,8 +1,8 @@
 package com.itic.intranet;
 
+import com.itic.intranet.dtos.*;
 import com.itic.intranet.enums.RoleType;
-import com.itic.intranet.models.*;
-import com.itic.intranet.repositories.*;
+import com.itic.intranet.services.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,8 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @SpringBootApplication
 public class IticIntranetApplication {
@@ -22,163 +20,79 @@ public class IticIntranetApplication {
     }
 
     @Bean
-    public CommandLineRunner initData(
-            RoleRepository roleRepository,
-            UserRepository userRepository,
-            ClassroomRepository classroomRepository,
-            EvaluationRepository evaluationRepository,
-            NoteRepository noteRepository,
-            PasswordEncoder passwordEncoder) {
+    public CommandLineRunner init(
+            RoleService roleService,
+            ClassroomService classroomService,
+            UserService userService,
+            EvaluationService evaluationService,
+            NoteService noteService
+    ) {
         return args -> {
-            Role admin = Role.builder()
-                    .roleType(RoleType.ADMIN)
-                    .wording("Administrateur")
-                    .build();
+            RoleRequestDto admin = new RoleRequestDto();
+            admin.setRoleType(RoleType.ADMIN);
+            admin.setWording("Admin");
+            roleService.createRole(admin);
 
-            Role teacher = Role.builder()
-                    .roleType(RoleType.TEACHER)
-                    .wording("Prof")
-                    .build();
+            RoleRequestDto teacher = new RoleRequestDto();
+            teacher.setRoleType(RoleType.TEACHER);
+            teacher.setWording("Teacher");
+            roleService.createRole(teacher);
 
-            Role student = Role.builder()
-                    .roleType(RoleType.STUDENT)
-                    .wording("Étudiant")
-                    .build();
+            RoleRequestDto student = new RoleRequestDto();
+            student.setRoleType(RoleType.STUDENT);
+            student.setWording("Student");
+            roleService.createRole(student);
 
-            roleRepository.saveAll(List.of(admin, teacher, student));
+            ClassroomRequestDto bachelorCda = new ClassroomRequestDto();
+            bachelorCda.setName("Bachelor CDA");
+            classroomService.createClassroom(bachelorCda);
 
-            Classroom bachelorCda = Classroom.builder()
-                    .name("Bachelor CDA")
-                    .build();
+            UserRequestDto adminUser = new UserRequestDto();
+            adminUser.setFirstname("Admin");
+            adminUser.setLastname("Admin");
+            adminUser.setEmail("admin@example.com");
+            adminUser.setUsername("admin");
+            adminUser.setPassword(new BCryptPasswordEncoder().encode("admin"));
+            adminUser.setRoleType(RoleType.ADMIN);
+            userService.createUser(adminUser);
 
-            Classroom bachelorAis = Classroom.builder()
-                    .name("Bachelor AIS")
-                    .build();
+            UserRequestDto teacherUser = new UserRequestDto();
+            teacherUser.setFirstname("Teacher");
+            teacherUser.setLastname("Bachelor");
+            teacherUser.setEmail("teaxher@example.com");
+            teacherUser.setUsername("teacher");
+            teacherUser.setPassword(new BCryptPasswordEncoder().encode("teacher"));
+            teacherUser.setRoleType(RoleType.TEACHER);
+            userService.createUser(teacherUser);
 
-            classroomRepository.saveAll(List.of(bachelorCda, bachelorAis));
+            UserRequestDto studentUser = new UserRequestDto();
+            studentUser.setFirstname("Student");
+            studentUser.setLastname("Bachelor");
+            studentUser.setEmail("studentUser@example.com");
+            studentUser.setUsername("studentUser");
+            studentUser.setPassword(new BCryptPasswordEncoder().encode("studentUser"));
+            studentUser.setRoleType(RoleType.STUDENT);
+            userService.createUser(studentUser);
 
-            User admininistrateur = User.builder()
-                    .firstname("Admin")
-                    .lastname("ITIC")
-                    .email("admin@itic.com")
-                    .username("admin")
-                    .password(passwordEncoder.encode("admin123"))
-                    .role(admin)
-                    .active(true)
-                    .build();
+            userService.assignClassroomToUser(3L, 1L);
+            //classroomService.addTeacherToClassroom(1L, 2L);
+            //classroomService.addStudentToClassroom(1L, 3L);
 
-            User malek = User.builder()
-                    .firstname("Malek")
-                    .lastname("CHAOUCH")
-                    .email("mc@itic.com")
-                    .username("miikelee")
-                    .password(passwordEncoder.encode("prof123"))
-                    .role(teacher)
-                    .active(true)
-                    .build();
+            EvaluationRequestDto evaluation = new EvaluationRequestDto();
+            evaluation.setTitle("Evaluation");
+            evaluation.setDescription("This is the evaluation");
+            evaluation.setMinValue(0);
+            evaluation.setMaxValue(100);
+            evaluation.setDate(LocalDateTime.now());
+            evaluationService.createEvaluation(evaluation, 2L);
 
-            User adnan = User.builder()
-                    .firstname("Adnan")
-                    .lastname("RIHAN")
-                    .email("ar@itic.com")
-                    .username("axel")
-                    .password(passwordEncoder.encode("prof123"))
-                    .role(teacher)
-                    .active(true)
-                    .build();
+            evaluationService.addClassroomToEvaluation(1L, 1L);
 
-            User cheridanh = User.builder()
-                    .firstname("Cheridanh")
-                    .lastname("TSIELA")
-                    .email("ct@itic.com")
-                    .username("dalton")
-                    .password(passwordEncoder.encode("etu123"))
-                    .role(student)
-                    .classroom(bachelorCda)
-                    .active(true)
-                    .build();
-
-            User loic = User.builder()
-                    .firstname("Loic")
-                    .lastname("TCHINDA")
-                    .email("lt@itic.com")
-                    .username("binguiste")
-                    .password(passwordEncoder.encode("etu123"))
-                    .role(student)
-                    .classroom(bachelorCda)
-                    .active(true)
-                    .build();
-
-            User louis = User.builder()
-                    .firstname("Louis")
-                    .lastname("Vidal")
-                    .email("lv@itic.com")
-                    .username("sioul")
-                    .password(passwordEncoder.encode("etu123"))
-                    .role(student)
-                    .classroom(bachelorAis)
-                    .active(true)
-                    .build();
-
-            userRepository.saveAll(List.of(admininistrateur, malek, adnan, cheridanh, loic, louis));
-
-            adnan.getTaughtClassrooms().addAll(List.of(bachelorCda, bachelorAis));
-            malek.getTaughtClassrooms().add(bachelorCda);
-            userRepository.saveAll(List.of(adnan, malek));
-
-            Evaluation conception = Evaluation.builder()
-                    .title("Conception")
-                    .description("Faire le diagrame de sequence de votre projet")
-                    .minValue(0)
-                    .maxValue(50)
-                    .date(LocalDateTime.now().plusDays(7))
-                    .createdBy(malek)
-                    .build();
-
-            Evaluation infra = Evaluation.builder()
-                    .title("Haute disponibilité")
-                    .description("Mettre en place une redondance AD et routeur Mikrotik")
-                    .minValue(0)
-                    .maxValue(50)
-                    .date(LocalDateTime.now().plusDays(14))
-                    .createdBy(adnan)
-                    .build();
-
-            Evaluation piscine = Evaluation.builder()
-                    .title("Première Pisicine")
-                    .description("Réalisez tous les challenges dans le temps impartis")
-                    .minValue(0)
-                    .maxValue(100)
-                    .date(LocalDateTime.now().plusDays(14))
-                    .createdBy(adnan)
-                    .build();
-
-            evaluationRepository.saveAll(List.of(conception, infra));
-
-            conception.getClassrooms().add(bachelorCda);
-            infra.getClassrooms().add(bachelorAis);
-            piscine.getClassrooms().addAll(List.of(bachelorCda, bachelorAis));
-            evaluationRepository.saveAll(List.of(conception, infra));
-
-            Note noteConception1 = Note.builder()
-                    .value(50)
-                    .user(cheridanh)
-                    .evaluation(conception)
-                    .build();
-
-            Note noteConception2 = Note.builder()
-                    .value(40)
-                    .user(loic)
-                    .evaluation(conception)
-                    .build();
-
-            Note noteInfra = Note.builder()
-                    .value(18)
-                    .user(louis)
-                    .evaluation(infra)
-                    .build();
-
-            noteRepository.saveAll(List.of(noteConception1, noteConception2, noteInfra));
+            NoteRequestDto note = new NoteRequestDto();
+            note.setValue(40);
+            note.setStudentId(3L);
+            note.setEvaluationId(1L);
+            noteService.createNote(note);
         };
     }
 

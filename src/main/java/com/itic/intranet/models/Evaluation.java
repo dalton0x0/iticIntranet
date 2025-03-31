@@ -31,7 +31,7 @@ public class Evaluation {
     private User createdBy;
 
     @Builder.Default
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "evaluation_classroom",
             joinColumns = @JoinColumn(name = "evaluation_id"),
@@ -40,7 +40,7 @@ public class Evaluation {
     @JsonIgnore
     private List<Classroom> classrooms = new ArrayList<>();
 
-    @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Note> notes = new ArrayList<>();
 }

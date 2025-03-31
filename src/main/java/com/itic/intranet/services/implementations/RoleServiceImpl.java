@@ -8,68 +8,44 @@ import com.itic.intranet.models.Role;
 import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.RoleService;
-import com.itic.intranet.utils.ApiResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
-    private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public ApiResponse getAllRoles() {
-        List<Role> roles = roleRepository.findAll();
-        if (roles.isEmpty()) {
-            throw new ResourceNotFoundException("Aucun rôle trouvé");
-        }
-
-        List<RoleResponseDto> response = roles.stream()
-                .map(this::convertToDto)
-                .toList();
-
-        return ApiResponse.builder()
-                .message(roles.size() + " rôles trouvés")
-                .response(response)
-                .build();
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
     }
 
     @Override
-    public ApiResponse getRoleById(Long id) {
-        Role role = roleRepository.findById(id)
+    public Role getRoleById(Long id) {
+        return roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Rôle non trouvé avec l'ID : " + id));
-
-        return ApiResponse.builder()
-                .message("Rôle trouvé")
-                .response(convertToDto(role))
-                .build();
     }
 
     @Override
-    public ApiResponse createRole(RoleRequestDto roleDto) {
+    public Role createRole(RoleRequestDto roleDto) {
         validateRoleRequest(roleDto);
         checkUniqueConstraints(roleDto);
-
-        Role role = new Role();
-        role.setRoleType(roleDto.getRoleType());
-        role.setWording(roleDto.getWording());
-
-        Role savedRole = roleRepository.save(role);
-        return ApiResponse.builder()
-                .message("Rôle créé avec succès")
-                .response(convertToDto(savedRole))
+        var role = Role.builder()
+                .roleType(roleDto.getRoleType())
+                .wording(roleDto.getWording())
                 .build();
+        return roleRepository.save(role);
     }
 
     @Override
-    public ApiResponse updateRole(Long id, RoleRequestDto roleDto) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rôle non trouvé avec l'ID : " + id));
-
+    public Role updateRole(Long id, RoleRequestDto roleDto) {
+        Role role = getRoleById(id);
         validateRoleRequest(roleDto);
 
         if (!role.getRoleType().equals(roleDto.getRoleType())) {
@@ -77,18 +53,12 @@ public class RoleServiceImpl implements RoleService {
         }
 
         role.setWording(roleDto.getWording());
-        Role updatedRole = roleRepository.save(role);
-
-        return ApiResponse.builder()
-                .message("Rôle mis à jour avec succès")
-                .response(convertToDto(updatedRole))
-                .build();
+        return roleRepository.save(role);
     }
 
     @Override
-    public ApiResponse deleteRole(Long id) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rôle non trouvé avec l'ID : " + id));
+    public void deleteRole(Long id) {
+        Role role = getRoleById(id);
 
         long userCount = userRepository.countByRoleId(id);
         if (userCount > 0) {
@@ -96,9 +66,6 @@ public class RoleServiceImpl implements RoleService {
         }
 
         roleRepository.delete(role);
-        return ApiResponse.builder()
-                .message("Rôle supprimé avec succès")
-                .build();
     }
 
     private void validateRoleRequest(RoleRequestDto dto) {
@@ -114,7 +81,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     private void checkUniqueConstraints(RoleRequestDto dto) {
-        roleRepository.findByRoleType(dto.getRoleType()).ifPresent(r -> {
+        roleRepository.findByRoleType(dto.getRoleType()).ifPresent(role -> {
             throw new BadRequestException("Un rôle avec ce type existe déjà");
         });
 

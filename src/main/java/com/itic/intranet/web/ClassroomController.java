@@ -1,63 +1,55 @@
 package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
+import com.itic.intranet.models.Classroom;
 import com.itic.intranet.services.ClassroomService;
-import com.itic.intranet.utils.ApiResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v7/classroom")
-@RequiredArgsConstructor
 public class ClassroomController {
 
-    private final ClassroomService classroomService;
+    @Autowired
+    private ClassroomService classroomService;
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getAllClassrooms() {
-        return ResponseEntity.ok(classroomService.getAllClassrooms());
+    public ResponseEntity<List<Classroom>> getAllClassrooms() {
+        List<Classroom> classrooms = classroomService.getAllClassrooms();
+        return classrooms.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(classrooms);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getClassroomById(@PathVariable Long id) {
-        return ResponseEntity.ok(classroomService.getClassroomById(id));
+    public ResponseEntity<Classroom> getClassroomById(@PathVariable Long id) {
+        Classroom classroom = classroomService.getClassroomById(id);
+        return ResponseEntity.ok(classroom);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> createClassroom(@RequestBody ClassroomRequestDto classroomDto) {
-        ApiResponse response = classroomService.createClassroom(classroomDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<Classroom> createClassroom(@RequestBody ClassroomRequestDto classroomDto) {
+        Classroom classroom = classroomService.createClassroom(classroomDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(classroom);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse> updateClassroom(@PathVariable Long id, @RequestBody ClassroomRequestDto classroomDto) {
-        return ResponseEntity.ok(classroomService.updateClassroom(id, classroomDto));
+    public ResponseEntity<Classroom> updateClassroom(@PathVariable Long id, @RequestBody ClassroomRequestDto classroomDto) {
+        Classroom classroom = classroomService.updateClassroom(id, classroomDto);
+        return ResponseEntity.ok(classroom);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResponse> deleteClassroom(@PathVariable Long id) {
-        return ResponseEntity.ok(classroomService.deleteClassroom(id));
+    public ResponseEntity<Void> deleteClassroom(@PathVariable Long id) {
+        classroomService.deleteClassroom(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{classroomId}/students/add/{studentId}")
-    public ResponseEntity<ApiResponse> addStudent(@PathVariable Long classroomId, @PathVariable Long studentId) {
-        return ResponseEntity.ok(classroomService.addStudentToClassroom(classroomId, studentId));
-    }
-
-    @DeleteMapping("/{classroomId}/students/remove/{studentId}")
-    public ResponseEntity<ApiResponse> removeStudent(@PathVariable Long classroomId, @PathVariable Long studentId) {
-        return ResponseEntity.ok(classroomService.removeStudentFromClassroom(classroomId, studentId));
-    }
-
-    @GetMapping("/{classroomId}/students")
-    public ResponseEntity<ApiResponse> getClassroomStudents(@PathVariable Long classroomId) {
-        return ResponseEntity.ok(classroomService.getClassroomStudents(classroomId));
-    }
-
-    @GetMapping("/{classroomId}/teachers")
-    public ResponseEntity<ApiResponse> getClassroomTeachers(@PathVariable Long classroomId) {
-        return ResponseEntity.ok(classroomService.getClassroomTeachers(classroomId));
+    public ResponseEntity<Classroom> addStudentToClassroom(@PathVariable Long classroomId, @PathVariable Long studentId) {
+        Classroom classroom = classroomService.addStudentToClassroom(classroomId, studentId);
+        return ResponseEntity.ok(classroom);
     }
 }

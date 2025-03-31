@@ -1,6 +1,9 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.dtos.*;
+import com.itic.intranet.dtos.EvaluationDetailedResponseDto;
+import com.itic.intranet.dtos.EvaluationRequestDto;
+import com.itic.intranet.dtos.EvaluationResponseDto;
+import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.models.Classroom;
@@ -12,89 +15,65 @@ import com.itic.intranet.repositories.EvaluationRepository;
 import com.itic.intranet.repositories.NoteRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.EvaluationService;
-import com.itic.intranet.utils.ApiResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class EvaluationServiceImpl implements EvaluationService {
 
-    private final EvaluationRepository evaluationRepository;
-    private final UserRepository userRepository;
-    private final ClassroomRepository classroomRepository;
-    private final NoteRepository noteRepository;
+    @Autowired
+    private EvaluationRepository evaluationRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ClassroomRepository classroomRepository;
+    @Autowired
+    private NoteRepository noteRepository;
 
     @Override
-    public ApiResponse getAllEvaluations() {
-        List<Evaluation> evaluations = evaluationRepository.findAll();
-        return ApiResponse.builder()
-                .message("Liste des évaluations")
-                .response(evaluations.stream().map(this::convertToDto).toList())
-                .build();
+    public List<Evaluation> getAllEvaluations() {
+        return evaluationRepository.findAll();
     }
 
     @Override
-    public ApiResponse getEvaluationById(Long id) {
+    public EvaluationDetailedResponseDto getEvaluationById(Long id) {
         Evaluation evaluation = evaluationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
-
-        return ApiResponse.builder()
-                .message("Évaluation trouvée")
-                .response(convertToDetailedDto(evaluation))
-                .build();
+        return convertToDetailedDto(evaluation);
     }
 
     @Override
-    public ApiResponse createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId) {
-        User teacher = userRepository.findById(teacherId)
+    public Evaluation createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId) {
+        User user = userRepository.findById(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Enseignant non trouvé"));
 
-        if (!teacher.isTeacher()) {
+        if (!user.isTeacher()) {
             throw new BadRequestException("Seuls les enseignants peuvent créer des évaluations");
         }
 
         validateEvaluationRequest(evaluationDto);
-
         Evaluation evaluation = new Evaluation();
-        evaluation.setTitle(evaluationDto.getTitle());
-        evaluation.setDescription(evaluationDto.getDescription());
-        evaluation.setMinValue(evaluationDto.getMinValue());
-        evaluation.setMaxValue(evaluationDto.getMaxValue());
-        evaluation.setDate(evaluationDto.getDate());
-        evaluation.setCreatedBy(teacher);
+        mapToDtoEntity(evaluationDto, evaluation);
+        evaluation.setCreatedBy(user);
 
-        Evaluation savedEvaluation = evaluationRepository.save(evaluation);
-        return ApiResponse.builder()
-                .message("Évaluation créée avec succès")
-                .response(convertToDto(savedEvaluation))
-                .build();
+        return evaluationRepository.save(evaluation);
     }
 
     @Override
-    public ApiResponse updateEvaluation(Long id, EvaluationRequestDto evaluationDto) {
+    public Evaluation updateEvaluation(Long id, EvaluationRequestDto evaluationDto) {
         Evaluation evaluation = evaluationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
-
         validateEvaluationRequest(evaluationDto);
-        evaluation.setTitle(evaluationDto.getTitle());
-        evaluation.setDescription(evaluationDto.getDescription());
-        evaluation.setMinValue(evaluationDto.getMinValue());
-        evaluation.setMaxValue(evaluationDto.getMaxValue());
-        evaluation.setDate(evaluationDto.getDate());
+        mapToDtoEntity(evaluationDto, evaluation);
 
-        Evaluation updatedEvaluation = evaluationRepository.save(evaluation);
-        return ApiResponse.builder()
-                .message("Évaluation mise à jour")
-                .response(convertToDto(updatedEvaluation))
-                .build();
+        return evaluationRepository.save(evaluation);
     }
 
     @Override
-    public ApiResponse deleteEvaluation(Long id) {
+    public void deleteEvaluation(Long id) {
         Evaluation evaluation = evaluationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
 
@@ -103,13 +82,10 @@ public class EvaluationServiceImpl implements EvaluationService {
         }
 
         evaluationRepository.delete(evaluation);
-        return ApiResponse.builder()
-                .message("Évaluation supprimée")
-                .build();
     }
 
     @Override
-    public ApiResponse addClassroomToEvaluation(Long evaluationId, Long classroomId) {
+    public Evaluation addClassroomToEvaluation(Long evaluationId, Long classroomId) {
         Evaluation evaluation = evaluationRepository.findById(evaluationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
 
@@ -123,57 +99,33 @@ public class EvaluationServiceImpl implements EvaluationService {
         evaluation.getClassrooms().add(classroom);
         evaluationRepository.save(evaluation);
 
-        return ApiResponse.builder()
-                .message("Classe ajoutée à l'évaluation")
-                .response(convertToDto(evaluation))
-                .build();
-    }
-
-    @Override
-    public ApiResponse getEvaluationResults(Long evaluationId) {
-        Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
-
-        List<Note> notes = noteRepository.findByEvaluationId(evaluationId);
-
-        EvaluationResultsDto results = new EvaluationResultsDto();
-        results.setEvaluationTitle(evaluation.getTitle());
-        results.setAverage(calculateAverage(notes));
-        results.setNotes(notes.stream().map(this::convertToNoteDto).toList());
-
-        return ApiResponse.builder()
-                .message("Résultats de l'évaluation")
-                .response(results)
-                .build();
+        return evaluation;
     }
 
     private void validateEvaluationRequest(EvaluationRequestDto dto) {
         if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
             throw new BadRequestException("Le titre est obligatoire");
         }
-
         if (dto.getMinValue() < 0) {
             throw new BadRequestException("La note minimale ne peut pas être négative");
         }
-
         if (dto.getMaxValue() > 100) {
             throw new BadRequestException("La note maximale ne peut pas dépasser 100");
         }
-
         if (dto.getMinValue() >= dto.getMaxValue()) {
             throw new BadRequestException("La note minimale doit être inférieure à la note maximale");
         }
-
-        if (dto.getDate() == null || dto.getDate().isBefore(LocalDateTime.now())) {
-            throw new BadRequestException("La date doit être dans le futur");
+        if (dto.getDate() == null ) {
+            throw new BadRequestException("La date ne peut pas être nulle");
         }
     }
 
-    private double calculateAverage(List<Note> notes) {
-        return notes.stream()
-                .mapToInt(Note::getValue)
-                .average()
-                .orElse(0.0);
+    private void mapToDtoEntity(EvaluationRequestDto evaluationDto, Evaluation evaluation) {
+        evaluation.setTitle(evaluationDto.getTitle());
+        evaluation.setDescription(evaluationDto.getDescription());
+        evaluation.setMinValue(evaluationDto.getMinValue());
+        evaluation.setMaxValue(evaluationDto.getMaxValue());
+        evaluation.setDate(evaluationDto.getDate());
     }
 
     private EvaluationResponseDto convertToDto(Evaluation evaluation) {

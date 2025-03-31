@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
     List<Classroom> findByNameContaining(String name);
+    boolean existsByName(String name);
 }

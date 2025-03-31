@@ -12,165 +12,158 @@ import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.ClassroomService;
-import com.itic.intranet.utils.ApiResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ClassroomServiceImpl implements ClassroomService {
 
-    private final ClassroomRepository classroomRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    private ClassroomRepository classroomRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public ApiResponse getAllClassrooms() {
-        List<Classroom> classrooms = classroomRepository.findAll();
-
-        return ApiResponse.builder()
-                .message("Liste des classes")
-                .response(classrooms.stream().map(this::convertToDto).toList())
-                .build();
+    public List<Classroom> getAllClassrooms() {
+        return classroomRepository.findAll();
     }
 
     @Override
-    public ApiResponse getClassroomById(Long id) {
-        Classroom classroom = classroomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
-
-        return ApiResponse.builder()
-                .message("Classe trouvée")
-                .response(convertToDetailedDto(classroom))
-                .build();
+    public Classroom getClassroomById(Long id) {
+        return classroomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
     }
 
     @Override
-    public ApiResponse createClassroom(ClassroomRequestDto classroomDto) {
+    public Classroom createClassroom(ClassroomRequestDto classroomDto) {
         validateClassroomRequest(classroomDto);
-
+        checkIfClassroomExistsByName(classroomDto);
         Classroom classroom = new Classroom();
         classroom.setName(classroomDto.getName());
-
-        Classroom savedClassroom = classroomRepository.save(classroom);
-        return ApiResponse.builder()
-                .message("Classe créée avec succès")
-                .response(convertToDto(savedClassroom))
-                .build();
+        return classroomRepository.save(classroom);
     }
 
     @Override
-    public ApiResponse updateClassroom(Long id, ClassroomRequestDto classroomDto) {
+    public Classroom updateClassroom(Long id, ClassroomRequestDto classroomDto) {
         Classroom classroom = classroomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
 
         validateClassroomRequest(classroomDto);
+        checkIfClassroomExistsByName(classroomDto);
         classroom.setName(classroomDto.getName());
 
-        Classroom updatedClassroom = classroomRepository.save(classroom);
-        return ApiResponse.builder()
-                .message("Classe mise à jour")
-                .response(convertToDto(updatedClassroom))
-                .build();
+        return classroomRepository.save(classroom);
     }
 
     @Override
-    public ApiResponse deleteClassroom(Long id) {
+    public void deleteClassroom(Long id) {
         Classroom classroom = classroomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
 
         long studentCount = userRepository.countByClassroomIdAndRoleType(id, RoleType.STUDENT);
         if (studentCount > 0) {
-            throw new BadRequestException("Impossible de supprimer : la classe contient " + studentCount + " étudiant(s)");
+            throw new BadRequestException("Impossible de supprimer, la classe contient " + studentCount + " étudiant");
         }
 
         classroomRepository.delete(classroom);
-        return ApiResponse.builder()
-                .message("Classe supprimée")
-                .build();
     }
 
     @Override
-    public ApiResponse addStudentToClassroom(Long classroomId, Long studentId) {
+    public Classroom addStudentToClassroom(Long classroomId, Long studentId) {
         Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
 
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Étudiant non trouvé"));
-
-        if (!student.getRole().getRoleType().equals(RoleType.STUDENT)) {
-            throw new BadRequestException("Seuls les étudiants peuvent être ajoutés à une classe");
-        }
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
         if (student.getClassroom() != null) {
-            throw new BadRequestException("L'étudiant est déjà dans une classe");
+            throw new BadRequestException("Student is already in classroom");
         }
 
         student.setClassroom(classroom);
         userRepository.save(student);
 
-        return ApiResponse.builder()
-                .message("Étudiant ajouté à la classe")
-                .response(convertToDetailedDto(classroom))
-                .build();
+        return classroom;
     }
 
     @Override
-    public ApiResponse removeStudentFromClassroom(Long classroomId, Long studentId) {
+    public void removeStudentFromClassroom(Long classroomId, Long studentId) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Étudiant non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
         if (student.getClassroom() == null || !student.getClassroom().getId().equals(classroomId)) {
-            throw new BadRequestException("L'étudiant n'est pas dans cette classe");
+            throw new BadRequestException("Student is not assigned to this classroom");
         }
 
         student.setClassroom(null);
         userRepository.save(student);
-
-        return ApiResponse.builder()
-                .message("Étudiant retiré de la classe")
-                .build();
     }
 
     @Override
-    public ApiResponse getClassroomStudents(Long classroomId) {
+    public Classroom addTeacherToClassroom(Long classroomId, Long teacherId) {
+        User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
 
-        if (!classroomRepository.existsById(classroomId)) {
-            throw new ResourceNotFoundException("Classe non trouvée");
+        Classroom classroom = classroomRepository.findById(classroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+
+        if (teacher.getTaughtClassrooms().contains(classroom)) {
+            throw new BadRequestException("Teacher is already assigned to this classroom");
         }
 
-        List<User> students = userRepository.findByClassroomIdAndRoleType(
-                classroomId,
-                RoleType.STUDENT
-        );
+        teacher.getTaughtClassrooms().add(classroom);
+        userRepository.save(teacher);
 
-        return ApiResponse.builder()
-                .message(students.size() + " étudiant(s) trouvé(s)")
-                .response(students.stream()
-                        .map(this::convertToUserMinimalDto)
-                        .toList())
-                .build();
+        return classroom;
     }
 
     @Override
-    public ApiResponse getClassroomTeachers(Long classroomId) {
-        if (!classroomRepository.existsById(classroomId)) {
-            throw new ResourceNotFoundException("Classe non trouvée");
+    public Classroom removeTeacherFromClassroom(Long classroomId, Long teacherId) {
+        User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+
+        Classroom classroom = classroomRepository.findById(classroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+
+        if (!teacher.getTaughtClassrooms().contains(classroom)) {
+            throw new BadRequestException("Teacher is not assigned to this classroom");
         }
+        teacher.getTaughtClassrooms().remove(classroom);
+        userRepository.save(teacher);
+        return classroom;
+    }
+
+    @Override
+    public List<UserMinimalDto> getClassroomStudents(Long classroomId) {
+        if (!classroomRepository.existsById(classroomId)) {
+            throw new ResourceNotFoundException("Classroom not found");
+        }
+
+        List<User> students = userRepository.findByClassroomIdAndRoleType(classroomId, RoleType.STUDENT);
+        return students.stream().map(this::convertToUserMinimalDto).toList();
+    }
+
+    @Override
+    public List<UserMinimalDto> getClassroomTeachers(Long classroomId) {
+        if (!classroomRepository.existsById(classroomId)) {
+            throw new ResourceNotFoundException("Classroom not found");
+        }
+
         List<User> teachers = userRepository.findTeachersByClassroomId(classroomId);
-
-        return ApiResponse.builder()
-                .message(teachers.size() + " enseignant(s) trouvé(s)")
-                .response(teachers.stream()
-                        .map(this::convertToUserMinimalDto)
-                        .toList())
-                .build();
+        return teachers.stream().map(this::convertToUserMinimalDto).toList();
     }
 
     private void validateClassroomRequest(ClassroomRequestDto dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
-            throw new BadRequestException("Le nom de la classe est obligatoire");
+            throw new BadRequestException("Name is required");
+        }
+    }
+
+    private void checkIfClassroomExistsByName(ClassroomRequestDto dto) {
+        if (classroomRepository.existsByName(dto.getName())) {
+            throw new BadRequestException("Classroom already exists");
         }
     }
 
@@ -195,10 +188,6 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     private UserMinimalDto convertToUserMinimalDto(User user) {
-        return UserMinimalDto.builder()
-                .id(user.getId())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .build();
+        return new UserMinimalDto(user.getId(), user.getFirstname(), user.getLastname());
     }
 }

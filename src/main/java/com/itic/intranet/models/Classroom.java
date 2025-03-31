@@ -20,11 +20,15 @@ public class Classroom {
     private Long id;
     private String name;
 
-    @ManyToMany(mappedBy = "classrooms")  // mappedBy fait référence à Evaluation.classrooms
+    @OneToMany(mappedBy = "classroom", fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<Evaluation> evaluations = new ArrayList<>();
+    List<User> students = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "taughtClassrooms")
+    @ManyToMany(mappedBy = "taughtClassrooms", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<User> teachers = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "classrooms", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Evaluation> evaluations = new ArrayList<>();
 }

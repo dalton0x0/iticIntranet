@@ -1,13 +1,17 @@
 package com.itic.intranet.services;
 
 import com.itic.intranet.dtos.NoteRequestDto;
-import com.itic.intranet.utils.ApiResponse;
+import com.itic.intranet.dtos.NoteResponseDto;
+import com.itic.intranet.models.Note;
+
+import java.util.List;
 
 public interface NoteService {
-    ApiResponse getNoteById(Long id);
-    ApiResponse createNote(NoteRequestDto noteDto);
-    ApiResponse updateNote(Long id, NoteRequestDto noteDto);
-    ApiResponse deleteNote(Long id);
-    ApiResponse getNotesByEvaluation(Long evaluationId);
-    ApiResponse getNotesByStudent(Long studentId);
+    List<NoteResponseDto> getAllNotes();
+    NoteResponseDto getNoteById(Long id);
+    NoteResponseDto createNote(NoteRequestDto noteDto);
+    NoteResponseDto updateNote(Long id, NoteRequestDto noteDto);
+    void deleteNote(Long id);
+    List<NoteResponseDto> getNotesByEvaluation(Long evaluationId);
+    List<NoteResponseDto> getNotesByStudent(Long studentId);
 }

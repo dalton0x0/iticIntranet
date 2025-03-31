@@ -1,59 +1,72 @@
 package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.UserRequestDto;
+import com.itic.intranet.models.User;
 import com.itic.intranet.services.UserService;
-import com.itic.intranet.utils.ApiResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/v7/user")
-@RequiredArgsConstructor
+@RequestMapping("/api/v9/user")
 public class UserController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return users.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(users);
     }
 
     @GetMapping("/active")
-    public ResponseEntity<ApiResponse> getActiveUsers() {
-        return ResponseEntity.ok(userService.getAllActiveUsers());
+    public ResponseEntity<List<User>> getActiveUsers() {
+        List<User> users = userService.getAllActiveUsers();
+        return users.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse> searchUsers(@RequestParam String keyword) {
-        return ResponseEntity.ok(userService.searchUsers(keyword));
+    public ResponseEntity<List<User>> searchUsers(@RequestParam String keyword) {
+        List<User> users = userService.searchUsers(keyword);
+        return users.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(users);
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequestDto userDto) {
-        ApiResponse response = userService.createUser(userDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<User> createUser(@RequestBody UserRequestDto userDto) {
+        User user = userService.createUser(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse> updateUser(@PathVariable Long id, @RequestBody UserRequestDto userDto) {
-        return ResponseEntity.ok(userService.updateUser(id, userDto));
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequestDto userDto) {
+        User updatedUser = userService.updateUser(id, userDto);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @PatchMapping("/deactivate/{id}")
-    public ResponseEntity<ApiResponse> deactivateUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.deactivateUser(id));
+    public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
+        userService.deactivateUser(id);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.permanentlyDeleteUser(id));
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.permanentlyDeleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
