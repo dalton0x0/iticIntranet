@@ -29,7 +29,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role getRoleById(Long id) {
         return roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Rôle non trouvé avec l'ID : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class RoleServiceImpl implements RoleService {
         validateRoleRequest(roleDto);
 
         if (!role.getRoleType().equals(roleDto.getRoleType())) {
-            throw new BadRequestException("Le type de rôle ne peut pas être modifié");
+            throw new BadRequestException("The role type cannot be changed");
         }
 
         role.setWording(roleDto.getWording());
@@ -62,7 +62,7 @@ public class RoleServiceImpl implements RoleService {
 
         long userCount = userRepository.countByRole_Id(id);
         if (userCount > 0) {
-            throw new BadRequestException("Impossible de supprimer : " + userCount + " utilisateur(s) ont ce rôle");
+            throw new BadRequestException("Unable to delete this role . There is one or more users with this role : " + userCount);
         }
 
         roleRepository.delete(role);
@@ -70,23 +70,23 @@ public class RoleServiceImpl implements RoleService {
 
     private void validateRoleRequest(RoleRequestDto dto) {
         if (dto.getRoleType() == null) {
-            throw new BadRequestException("Le type de rôle est obligatoire");
+            throw new BadRequestException("Role type is required");
         }
         if (dto.getWording() == null || dto.getWording().trim().isEmpty()) {
-            throw new BadRequestException("Le libellé est obligatoire");
+            throw new BadRequestException("Wording is required");
         }
-        if (dto.getWording().length() > 50) {
-            throw new BadRequestException("Le libellé ne doit pas dépasser 50 caractères");
+        if (dto.getWording().length() > 20) {
+            throw new BadRequestException("The label must not exceed 20 characters");
         }
     }
 
     private void checkUniqueConstraints(RoleRequestDto dto) {
         roleRepository.findByRoleType(dto.getRoleType()).ifPresent(role -> {
-            throw new BadRequestException("Un rôle avec ce type existe déjà");
+            throw new BadRequestException("A role with this type already exists");
         });
 
         roleRepository.findByWording(dto.getWording()).ifPresent(r -> {
-            throw new BadRequestException("Un rôle avec ce libellé existe déjà");
+            throw new BadRequestException("A role with this wording already exists");
         });
     }
 
