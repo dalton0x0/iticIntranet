@@ -13,9 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(String firstname, String lastname);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
-
-    @Query("SELECT COUNT(u) FROM User u WHERE u.role.id = :roleId")
-    long countByRoleId(@Param("roleId") Long roleId);
+    long countByRole_Id(Long roleId);
 
     @Query("SELECT u FROM User u WHERE u.classroom.id = :classroomId AND u.role.roleType = 'STUDENT'")
     List<User> findByClassroomIdAndRoleType(@Param("classroomId") Long classroomId, @Param("roleType") RoleType roleType);

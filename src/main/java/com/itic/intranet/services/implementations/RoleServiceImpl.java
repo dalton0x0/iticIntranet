@@ -60,7 +60,7 @@ public class RoleServiceImpl implements RoleService {
     public void deleteRole(Long id) {
         Role role = getRoleById(id);
 
-        long userCount = userRepository.countByRoleId(id);
+        long userCount = userRepository.countByRole_Id(id);
         if (userCount > 0) {
             throw new BadRequestException("Impossible de supprimer : " + userCount + " utilisateur(s) ont ce rôle");
         }
