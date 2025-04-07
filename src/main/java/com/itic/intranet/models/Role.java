@@ -26,7 +26,7 @@ public class Role {
 
     private String wording;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     @Builder.Default
     private List<User> users = new ArrayList<>();

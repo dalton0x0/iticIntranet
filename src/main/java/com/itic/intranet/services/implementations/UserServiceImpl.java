@@ -95,20 +95,53 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    public void assignClassroomToUser(Long userId, Long classroomId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+    @Override
+    public void removeRoleFromUser(Long userId, Long roleId) {
+        User user = getUserById(userId);
+        if (user.getRole() == null) {
+            throw new ResourceNotFoundException("This user does not have a role");
+        }
+        user.setRole(null);
+        userRepository.save(user);
+    }
 
+    @Override
+    public void assignClassroomToUser(Long userId, Long classroomId) {
+        User user = getUserById(userId);
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
 
-        if (user.getRole().getRoleType() == RoleType.TEACHER) {
+        if (user.isTeacher()) {
+            if (user.getTaughtClassrooms().contains(classroom)) {
+                throw new BadRequestException("This teacher is already assigned to this classroom");
+            }
             user.getTaughtClassrooms().add(classroom);
-        } else if (user.getRole().getRoleType() == RoleType.STUDENT) {
+        } else if (user.isStudent()) {
             if (user.getClassroom() != null) {
                 throw new BadRequestException("A student can only have one class");
             }
             user.setClassroom(classroom);
+        }
+        userRepository.save(user);
+    }
+
+    @Override
+    public void removeClassroomFromUser(Long userId, Long classroomId) {
+        User user = getUserById(userId);
+        Classroom classroom = classroomRepository.findById(classroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+
+        if (user.isTeacher()) {
+            if (!user.getTaughtClassrooms().contains(classroom)) {
+                throw new BadRequestException("This teacher is already removed from this classroom");
+            }
+            user.getTaughtClassrooms().remove(classroom);
+        } else
+        if (user.isStudent()) {
+            if (user.getClassroom() == null) {
+                throw new BadRequestException("This student is already removed from classroom");
+            }
+            user.setClassroom(null);
         }
         userRepository.save(user);
     }
@@ -128,9 +161,6 @@ public class UserServiceImpl implements UserService {
         }
         if (dto.getPassword() == null || dto.getPassword().length() < 8) {
             throw new BadRequestException("Password must be at least 8 characters");
-        }
-        if (dto.getRoleType() == null) {
-            throw new BadRequestException("RoleType is required");
         }
     }
 

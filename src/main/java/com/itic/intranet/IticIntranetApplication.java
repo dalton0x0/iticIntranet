@@ -7,8 +7,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -52,7 +50,7 @@ public class IticIntranetApplication {
             adminUser.setLastname("Admin");
             adminUser.setEmail("admin@example.com");
             adminUser.setUsername("admin");
-            adminUser.setPassword(new BCryptPasswordEncoder().encode("admin"));
+            adminUser.setPassword("admin1234");
             adminUser.setRoleType(RoleType.ADMIN);
             userService.createUser(adminUser);
 
@@ -61,7 +59,7 @@ public class IticIntranetApplication {
             teacherUser.setLastname("Bachelor");
             teacherUser.setEmail("teaxher@example.com");
             teacherUser.setUsername("teacher");
-            teacherUser.setPassword(new BCryptPasswordEncoder().encode("teacher"));
+            teacherUser.setPassword("teacher1234");
             teacherUser.setRoleType(RoleType.TEACHER);
             userService.createUser(teacherUser);
 
@@ -70,7 +68,7 @@ public class IticIntranetApplication {
             studentUser.setLastname("Bachelor");
             studentUser.setEmail("studentUser@example.com");
             studentUser.setUsername("studentUser");
-            studentUser.setPassword(new BCryptPasswordEncoder().encode("studentUser"));
+            studentUser.setPassword("student1234");
             studentUser.setRoleType(RoleType.STUDENT);
             userService.createUser(studentUser);
 
@@ -94,10 +92,5 @@ public class IticIntranetApplication {
             note.setEvaluationId(1L);
             noteService.createNote(note);
         };
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
