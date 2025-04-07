@@ -21,9 +21,9 @@ import java.util.List;
 public class ClassroomServiceImpl implements ClassroomService {
 
     @Autowired
-    ClassroomRepository classroomRepository;
+    private ClassroomRepository classroomRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Override
     public List<Classroom> getAllClassrooms() {

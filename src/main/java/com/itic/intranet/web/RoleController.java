@@ -15,7 +15,7 @@ import java.util.List;
 public class RoleController {
 
     @Autowired
-    RoleService roleService;
+    private RoleService roleService;
 
     @GetMapping("/all")
     public ResponseEntity<List<Role>> getAllRoles() {

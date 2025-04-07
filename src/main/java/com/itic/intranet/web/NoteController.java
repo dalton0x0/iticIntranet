@@ -18,7 +18,7 @@ import java.util.List;
 public class NoteController {
 
     @Autowired
-    NoteService noteService;
+    private NoteService noteService;
 
     @GetMapping("/{id}")
     public ResponseEntity<List<NoteResponseDto>> getNoteById(@PathVariable Long id) {

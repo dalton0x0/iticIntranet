@@ -23,11 +23,11 @@ import java.util.List;
 public class EvaluationServiceImpl implements EvaluationService {
 
     @Autowired
-    EvaluationRepository evaluationRepository;
+    private EvaluationRepository evaluationRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    ClassroomRepository classroomRepository;
+    private ClassroomRepository classroomRepository;
 
     @Override
     public List<Evaluation> getAllEvaluations() {

@@ -16,7 +16,7 @@ import java.util.List;
 public class EvaluationController {
 
     @Autowired
-    EvaluationService evaluationService;
+    private EvaluationService evaluationService;
 
     @GetMapping("/all")
     public ResponseEntity<List<Evaluation>> getAllEvaluations() {

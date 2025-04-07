@@ -16,7 +16,7 @@ import java.util.List;
 public class ClassroomController {
 
     @Autowired
-    ClassroomService classroomService;
+    private ClassroomService classroomService;
 
     @GetMapping("/all")
     public ResponseEntity<List<Classroom>> getAllClassrooms() {

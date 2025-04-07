@@ -22,11 +22,11 @@ import java.util.List;
 public class NoteServiceImpl implements NoteService {
 
     @Autowired
-    NoteRepository noteRepository;
+    private NoteRepository noteRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    EvaluationRepository evaluationRepository;
+    private EvaluationRepository evaluationRepository;
 
     @Override
     public List<NoteResponseDto> getAllNotes() {
