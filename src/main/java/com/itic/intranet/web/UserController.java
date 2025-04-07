@@ -25,17 +25,13 @@ public class UserController {
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        return users.isEmpty()
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(users);
+        return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
     }
 
     @GetMapping("/active")
     public ResponseEntity<List<User>> getActiveUsers() {
         List<User> users = userService.getAllActiveUsers();
-        return users.isEmpty()
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(users);
+        return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
@@ -50,9 +46,7 @@ public class UserController {
     @GetMapping("/search")
     public ResponseEntity<List<User>> searchUsers(@RequestParam String keyword) {
         List<User> users = userService.searchUsers(keyword);
-        return users.isEmpty()
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(users);
+        return users.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(users);
     }
 
     @PostMapping("/add")

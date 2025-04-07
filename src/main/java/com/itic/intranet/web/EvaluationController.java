@@ -5,18 +5,18 @@ import com.itic.intranet.dtos.EvaluationRequestDto;
 import com.itic.intranet.dtos.EvaluationResponseDto;
 import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.services.EvaluationService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v7/evaluation")
-@RequiredArgsConstructor
+@RequestMapping("/api/v9/evaluation")
 public class EvaluationController {
 
-    private final EvaluationService evaluationService;
+    @Autowired
+    EvaluationService evaluationService;
 
     @GetMapping("/all")
     public ResponseEntity<List<Evaluation>> getAllEvaluations() {
@@ -25,10 +25,15 @@ public class EvaluationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EvaluationDetailedResponseDto> getEvaluationById(@PathVariable Long id) {
-        EvaluationDetailedResponseDto evaluation = evaluationService.getEvaluationById(id);
+    public ResponseEntity<Evaluation> getEvaluationById(@PathVariable Long id) {
+        Evaluation evaluation = evaluationService.getEvaluationById(id);
         return evaluation == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(evaluation);
+    }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Evaluation>> searchEvaluation(@RequestParam String title) {
+        List<Evaluation> evaluations = evaluationService.searchEvaluations(title);
+        return evaluations.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(evaluations);
     }
 
     @PostMapping("/add/teacher/{teacherId}")

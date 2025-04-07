@@ -13,17 +13,20 @@ import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.NoteService;
 import com.itic.intranet.utils.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class NoteServiceImpl implements NoteService {
 
-    private final NoteRepository noteRepository;
-    private final UserRepository userRepository;
-    private final EvaluationRepository evaluationRepository;
+    @Autowired
+    NoteRepository noteRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    EvaluationRepository evaluationRepository;
 
     @Override
     public List<NoteResponseDto> getAllNotes() {

@@ -17,9 +17,9 @@ import java.util.List;
 public class RoleServiceImpl implements RoleService {
 
     @Autowired
-    private RoleRepository roleRepository;
+    RoleRepository roleRepository;
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @Override
     public List<Role> getAllRoles() {

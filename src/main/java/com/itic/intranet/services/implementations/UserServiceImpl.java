@@ -19,11 +19,11 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
     @Autowired
-    private RoleRepository roleRepository;
+    RoleRepository roleRepository;
     @Autowired
-    private ClassroomRepository classroomRepository;
+    ClassroomRepository classroomRepository;
 
     @Override
     public List<User> getAllUsers() {

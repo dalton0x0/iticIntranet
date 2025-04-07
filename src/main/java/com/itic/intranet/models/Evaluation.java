@@ -26,7 +26,7 @@ public class Evaluation {
     private int maxValue;
     private LocalDateTime date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by_id", nullable = false)
     private User createdBy;
 

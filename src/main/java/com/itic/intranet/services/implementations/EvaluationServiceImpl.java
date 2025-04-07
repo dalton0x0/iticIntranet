@@ -12,26 +12,22 @@ import com.itic.intranet.models.Note;
 import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.EvaluationRepository;
-import com.itic.intranet.repositories.NoteRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class EvaluationServiceImpl implements EvaluationService {
 
     @Autowired
-    private EvaluationRepository evaluationRepository;
+    EvaluationRepository evaluationRepository;
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
     @Autowired
-    private ClassroomRepository classroomRepository;
-    @Autowired
-    private NoteRepository noteRepository;
+    ClassroomRepository classroomRepository;
 
     @Override
     public List<Evaluation> getAllEvaluations() {
@@ -39,10 +35,17 @@ public class EvaluationServiceImpl implements EvaluationService {
     }
 
     @Override
-    public EvaluationDetailedResponseDto getEvaluationById(Long id) {
-        Evaluation evaluation = evaluationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
-        return convertToDetailedDto(evaluation);
+    public Evaluation getEvaluationById(Long id) {
+        return evaluationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Evaluation not found"));
+    }
+
+    @Override
+    public List<Evaluation> searchEvaluations(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new BadRequestException("Incorrect search");
+        }
+        return evaluationRepository.findByTitleContainingIgnoreCase(title);
     }
 
     @Override
@@ -64,8 +67,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public Evaluation updateEvaluation(Long id, EvaluationRequestDto evaluationDto) {
-        Evaluation evaluation = evaluationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
+        Evaluation evaluation = getEvaluationById(id);
         validateEvaluationRequest(evaluationDto);
         mapToDtoEntity(evaluationDto, evaluation);
 
@@ -74,8 +76,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public void deleteEvaluation(Long id) {
-        Evaluation evaluation = evaluationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
+        Evaluation evaluation = getEvaluationById(id);
 
         if (!evaluation.getNotes().isEmpty()) {
             throw new BadRequestException("Impossible de supprimer : l'évaluation a des notes associées");
@@ -86,8 +87,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public Evaluation addClassroomToEvaluation(Long evaluationId, Long classroomId) {
-        Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Évaluation non trouvée"));
+        Evaluation evaluation = getEvaluationById(evaluationId);
 
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
