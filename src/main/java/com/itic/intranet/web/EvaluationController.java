@@ -19,8 +19,8 @@ public class EvaluationController {
     private EvaluationService evaluationService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Evaluation>> getAllEvaluations() {
-        List<Evaluation> evaluations = evaluationService.getAllEvaluations();
+    public ResponseEntity<List<EvaluationDetailedResponseDto>> getAllEvaluations() {
+        List<EvaluationDetailedResponseDto> evaluations = evaluationService.getAllEvaluations();
         return evaluations.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(evaluations);
     }
 
@@ -33,7 +33,7 @@ public class EvaluationController {
     @GetMapping("/search")
     public ResponseEntity<List<Evaluation>> searchEvaluation(@RequestParam String title) {
         List<Evaluation> evaluations = evaluationService.searchEvaluations(title);
-        return evaluations.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(evaluations);
+        return evaluations.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(evaluations);
     }
 
     @PostMapping("/add/teacher/{teacherId}")
@@ -55,7 +55,14 @@ public class EvaluationController {
     }
 
     @PostMapping("/{evaluationId}/classrooms/add/{classroomId}")
-    public ResponseEntity<Evaluation> addClassroomToEvaluation(@PathVariable Long evaluationId, @PathVariable Long classroomId) {
-        return ResponseEntity.ok(evaluationService.addClassroomToEvaluation(evaluationId, classroomId));
+    public ResponseEntity<Void> addClassroomToEvaluation(@PathVariable Long evaluationId, @PathVariable Long classroomId) {
+        evaluationService.addClassroomToEvaluation(evaluationId, classroomId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{evaluationId}/classrooms/remove/{classroomId}")
+    public ResponseEntity<Void> removeClassroomToEvaluation(@PathVariable Long evaluationId, @PathVariable Long classroomId) {
+        evaluationService.removeClassroomToEvaluation(evaluationId, classroomId);
+        return ResponseEntity.ok().build();
     }
 }

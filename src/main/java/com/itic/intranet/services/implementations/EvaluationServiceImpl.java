@@ -30,8 +30,8 @@ public class EvaluationServiceImpl implements EvaluationService {
     private ClassroomRepository classroomRepository;
 
     @Override
-    public List<Evaluation> getAllEvaluations() {
-        return evaluationRepository.findAll();
+    public List<EvaluationDetailedResponseDto> getAllEvaluations() {
+        return evaluationRepository.findAll().stream().map(this::convertToDetailedDto).toList();
     }
 
     @Override
@@ -51,10 +51,10 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     public Evaluation createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId) {
         User user = userRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Enseignant non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
 
         if (!user.isTeacher()) {
-            throw new BadRequestException("Seuls les enseignants peuvent créer des évaluations");
+            throw new BadRequestException("Only teacher can create evaluations");
         }
 
         validateEvaluationRequest(evaluationDto);
@@ -79,44 +79,57 @@ public class EvaluationServiceImpl implements EvaluationService {
         Evaluation evaluation = getEvaluationById(id);
 
         if (!evaluation.getNotes().isEmpty()) {
-            throw new BadRequestException("Impossible de supprimer : l'évaluation a des notes associées");
+            throw new BadRequestException("Cannot delete: Evaluation has associated notes");
         }
 
         evaluationRepository.delete(evaluation);
     }
 
     @Override
-    public Evaluation addClassroomToEvaluation(Long evaluationId, Long classroomId) {
+    public void addClassroomToEvaluation(Long evaluationId, Long classroomId) {
         Evaluation evaluation = getEvaluationById(evaluationId);
 
         Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classe non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
 
         if (evaluation.getClassrooms().contains(classroom)) {
-            throw new BadRequestException("Cette classe est déjà associée à l'évaluation");
+            throw new BadRequestException("This evaluation has already associated to this classrooms");
         }
 
         evaluation.getClassrooms().add(classroom);
         evaluationRepository.save(evaluation);
+    }
 
-        return evaluation;
+    @Override
+    public void removeClassroomToEvaluation(Long evaluationId, Long classroomId) {
+        Evaluation evaluation = getEvaluationById(evaluationId);
+
+        Classroom classroom = classroomRepository.findById(classroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+
+        if (!evaluation.getClassrooms().contains(classroom)) {
+            throw new BadRequestException("This evaluation has been already removed to this classroom");
+        }
+
+        evaluation.getClassrooms().remove(classroom);
+        evaluationRepository.save(evaluation);
     }
 
     private void validateEvaluationRequest(EvaluationRequestDto dto) {
         if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
-            throw new BadRequestException("Le titre est obligatoire");
+            throw new BadRequestException("Title is required");
         }
         if (dto.getMinValue() < 0) {
-            throw new BadRequestException("La note minimale ne peut pas être négative");
+            throw new BadRequestException("The minimum note cannot be negative");
         }
         if (dto.getMaxValue() > 100) {
-            throw new BadRequestException("La note maximale ne peut pas dépasser 100");
+            throw new BadRequestException("The maximum note cannot exceed 100");
         }
         if (dto.getMinValue() >= dto.getMaxValue()) {
-            throw new BadRequestException("La note minimale doit être inférieure à la note maximale");
+            throw new BadRequestException("The minimum note must be lower than the maximum score");
         }
         if (dto.getDate() == null ) {
-            throw new BadRequestException("La date ne peut pas être nulle");
+            throw new BadRequestException("The date cannot be null");
         }
     }
 
