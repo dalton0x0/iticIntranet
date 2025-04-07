@@ -71,68 +71,49 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public Classroom addStudentToClassroom(Long classroomId, Long studentId) {
+    public void addUserToClassroom(Long classroomId, Long studentId) {
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
 
-        User student = userRepository.findById(studentId)
+        User user = userRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        if (student.getClassroom() != null) {
-            throw new BadRequestException("Student is already in classroom");
+        if (user.isTeacher()) {
+            if (user.getTaughtClassrooms().contains(classroom)) {
+                throw new BadRequestException("This teacher is already added in this classroom");
+            }
+            user.getTaughtClassrooms().add(classroom);
+        } else if (user.isStudent()) {
+            if (user.getClassroom() != null) {
+                throw new BadRequestException("This student is already assigned to a class");
+            }
+            user.setClassroom(classroom);
         }
 
-        student.setClassroom(classroom);
-        userRepository.save(student);
-
-        return classroom;
+        userRepository.save(user);
     }
 
     @Override
-    public void removeStudentFromClassroom(Long classroomId, Long studentId) {
-        User student = userRepository.findById(studentId)
+    public void removeUserFromClassroom(Long classroomId, Long studentId) {
+        Classroom classroom = classroomRepository.findById(classroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+
+        User user = userRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        if (student.getClassroom() == null || !student.getClassroom().getId().equals(classroomId)) {
-            throw new BadRequestException("Student is not assigned to this classroom");
+        if (user.isTeacher()) {
+            if (!user.getTaughtClassrooms().contains(classroom)) {
+                throw new BadRequestException("This teacher is already removed in this classroom");
+            }
+            user.getTaughtClassrooms().remove(classroom);
+        } else if (user.isStudent()) {
+            if (!user.getClassroom().equals(classroom)) {
+                throw new BadRequestException("This student is already removed in this classroom");
+            }
+            user.setClassroom(null);
         }
 
-        student.setClassroom(null);
-        userRepository.save(student);
-    }
-
-    @Override
-    public Classroom addTeacherToClassroom(Long classroomId, Long teacherId) {
-        User teacher = userRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
-
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
-        if (teacher.getTaughtClassrooms().contains(classroom)) {
-            throw new BadRequestException("Teacher is already assigned to this classroom");
-        }
-
-        teacher.getTaughtClassrooms().add(classroom);
-        userRepository.save(teacher);
-
-        return classroom;
-    }
-
-    @Override
-    public Classroom removeTeacherFromClassroom(Long classroomId, Long teacherId) {
-        User teacher = userRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
-
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
-        if (!teacher.getTaughtClassrooms().contains(classroom)) {
-            throw new BadRequestException("Teacher is not assigned to this classroom");
-        }
-        teacher.getTaughtClassrooms().remove(classroom);
-        userRepository.save(teacher);
-        return classroom;
+        userRepository.save(user);
     }
 
     @Override

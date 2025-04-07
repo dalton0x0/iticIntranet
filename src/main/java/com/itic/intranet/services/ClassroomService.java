@@ -12,10 +12,8 @@ public interface ClassroomService {
     Classroom createClassroom(ClassroomRequestDto classroomDto);
     Classroom updateClassroom(Long id, ClassroomRequestDto classroomDto);
     void deleteClassroom(Long id);
-    Classroom addStudentToClassroom(Long classroomId, Long studentId);
-    void removeStudentFromClassroom(Long classroomId, Long studentId);
-    Classroom addTeacherToClassroom(Long classroomId, Long teacherId);
-    Classroom removeTeacherFromClassroom(Long classroomId, Long teacherId);
+    void addUserToClassroom(Long classroomId, Long studentId);
+    void removeUserFromClassroom(Long classroomId, Long studentId);
     List<UserMinimalDto>  getClassroomStudents(Long classroomId);
     List<UserMinimalDto>  getClassroomTeachers(Long classroomId);
 }

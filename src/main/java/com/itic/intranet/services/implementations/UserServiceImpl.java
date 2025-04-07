@@ -1,7 +1,6 @@
 package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.UserRequestDto;
-import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.models.Classroom;

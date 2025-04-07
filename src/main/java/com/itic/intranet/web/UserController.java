@@ -88,7 +88,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{userId}/remove-role/{roleId}")
+    @DeleteMapping("/{userId}/remove-role/{roleId}")
     public ResponseEntity<Void> removeRoleFromUser(@PathVariable Long userId, @PathVariable Long roleId) {
         userService.removeRoleFromUser(userId, roleId);
         return ResponseEntity.ok().build();
@@ -100,7 +100,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{userId}/remove-classroom/{classroomId}")
+    @DeleteMapping("/{userId}/remove-classroom/{classroomId}")
     public ResponseEntity<Void> removeClassroomFromUser(@PathVariable Long userId, @PathVariable Long classroomId) {
         userService.removeClassroomFromUser(userId, classroomId);
         return ResponseEntity.ok().build();

@@ -1,6 +1,7 @@
 package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
+import com.itic.intranet.dtos.UserMinimalDto;
 import com.itic.intranet.models.Classroom;
 import com.itic.intranet.services.ClassroomService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v7/classroom")
+@RequestMapping("/api/v9/classroom")
 public class ClassroomController {
 
     @Autowired
@@ -47,9 +48,27 @@ public class ClassroomController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{classroomId}/students/add/{studentId}")
-    public ResponseEntity<Classroom> addStudentToClassroom(@PathVariable Long classroomId, @PathVariable Long studentId) {
-        Classroom classroom = classroomService.addStudentToClassroom(classroomId, studentId);
-        return ResponseEntity.ok(classroom);
+    @PostMapping("/{classroomId}/user/add/{userId}")
+    public ResponseEntity<Void> addUserToClassroom(@PathVariable Long classroomId, @PathVariable Long userId) {
+        classroomService.addUserToClassroom(classroomId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{classroomId}/user/remove/{userId}")
+    public ResponseEntity<Void> removeUserFromClassroom(@PathVariable Long classroomId, @PathVariable Long userId) {
+        classroomService.removeUserFromClassroom(classroomId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{classroomId}/student/all")
+    public ResponseEntity<List<UserMinimalDto>> getClassroomStudents (@PathVariable Long classroomId) {
+        List<UserMinimalDto> students = classroomService.getClassroomStudents(classroomId);
+        return students.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/{classroomId}/teacher/all")
+    public ResponseEntity<List<UserMinimalDto>> getClassroomTeachers (@PathVariable Long classroomId) {
+        List<UserMinimalDto> teachers = classroomService.getClassroomTeachers(classroomId);
+        return teachers.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(teachers);
     }
 }
