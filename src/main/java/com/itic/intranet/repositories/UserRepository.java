@@ -9,18 +9,21 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    List<User> findByActive(boolean active);
-    List<User> findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(String firstname, String lastname);
+
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
-    long countByRole_Id(Long roleId);
+
+    List<User> findByActive(boolean active);
+    List<User> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstname, String lastname);
 
     @Query("SELECT u FROM User u WHERE u.classroom.id = :classroomId AND u.role.roleType = 'STUDENT'")
     List<User> findByClassroomIdAndRoleType(@Param("classroomId") Long classroomId, @Param("roleType") RoleType roleType);
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.classroom.id = :classroomId AND u.role.roleType = 'STUDENT'")
-    long countByClassroomIdAndRoleType(@Param("classroomId") Long classroomId, @Param("roleType") RoleType roleType);
-
     @Query("SELECT DISTINCT t FROM User t JOIN t.taughtClassrooms c WHERE c.id = :classroomId")
     List<User> findTeachersByClassroomId(@Param("classroomId") Long classroomId);
+
+    long countByRole_Id(Long roleId);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.classroom.id = :classroomId AND u.role.roleType = 'STUDENT'")
+    long countByClassroomIdAndRoleType(@Param("classroomId") Long classroomId, @Param("roleType") RoleType roleType);
 }

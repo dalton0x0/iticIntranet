@@ -19,8 +19,8 @@ import java.util.List;
 public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String firstname;
-    private String lastname;
+    private String firstName;
+    private String lastName;
     @Column(unique = true)
     private String email;
     @Column(unique = true)
@@ -37,7 +37,7 @@ public class User {
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "teacher_classroom",
+    @JoinTable(name = "classroom_teacher",
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "classroom_id"))
     @JsonIgnore

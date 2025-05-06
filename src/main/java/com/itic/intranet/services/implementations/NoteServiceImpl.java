@@ -134,7 +134,7 @@ public class NoteServiceImpl implements NoteService {
                 .id(note.getId())
                 .value(note.getValue())
                 .studentId(note.getUser().getId())
-                .studentName(note.getUser().getFirstname() + " " + note.getUser().getLastname())
+                .studentName(note.getUser().getFirstName() + " " + note.getUser().getLastName())
                 .evaluationId(note.getEvaluation().getId())
                 .evaluationTitle(note.getEvaluation().getTitle())
                 .build();

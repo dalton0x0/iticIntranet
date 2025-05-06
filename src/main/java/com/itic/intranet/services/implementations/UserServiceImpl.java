@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new BadRequestException("Incorrect search");
         }
-        return userRepository.findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCase(keyword, keyword);
+        return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(keyword, keyword);
     }
 
     @Override
@@ -146,10 +146,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateUserRequest(UserRequestDto dto) {
-        if (dto.getFirstname() == null || dto.getFirstname().trim().isEmpty()) {
+        if (dto.getFirstName() == null || dto.getFirstName().trim().isEmpty()) {
             throw new BadRequestException("Firstname is required");
         }
-        if (dto.getLastname() == null || dto.getLastname().trim().isEmpty()) {
+        if (dto.getLastName() == null || dto.getLastName().trim().isEmpty()) {
             throw new BadRequestException("Lastname is required");
         }
         if (dto.getEmail() == null || !dto.getEmail().contains("@")) {
@@ -173,8 +173,8 @@ public class UserServiceImpl implements UserService {
     }
 
     private void mapDtoToEntity(UserRequestDto dto, User user) {
-        user.setFirstname(dto.getFirstname().trim());
-        user.setLastname(dto.getLastname().trim());
+        user.setFirstName(dto.getFirstName().trim());
+        user.setLastName(dto.getLastName().trim());
         user.setEmail(dto.getEmail().trim().toLowerCase());
         user.setUsername(dto.getUsername().trim());
         user.setPassword(dto.getPassword());

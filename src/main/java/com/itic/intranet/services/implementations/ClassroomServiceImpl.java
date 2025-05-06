@@ -169,6 +169,6 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     private UserMinimalDto convertToUserMinimalDto(User user) {
-        return new UserMinimalDto(user.getId(), user.getFirstname(), user.getLastname());
+        return new UserMinimalDto(user.getId(), user.getFirstName(), user.getLastName());
     }
 }
