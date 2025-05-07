@@ -24,7 +24,7 @@ public class Role {
     @Column(unique = true)
     private RoleType roleType;
 
-    private String wording;
+    private String label;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore

@@ -7,13 +7,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    boolean existsByEmail(String email);
-    boolean existsByUsername(String username);
+    Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
+    List<User> findByRole_Id(Long roleId);
 
     List<User> findByActive(boolean active);
+
     List<User> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstname, String lastname);
 
     @Query("SELECT u FROM User u WHERE u.classroom.id = :classroomId AND u.role.roleType = 'STUDENT'")

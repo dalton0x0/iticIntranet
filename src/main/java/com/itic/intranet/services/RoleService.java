@@ -1,14 +1,16 @@
 package com.itic.intranet.services;
 
 import com.itic.intranet.dtos.RoleRequestDto;
+import com.itic.intranet.dtos.RoleResponseDto;
 import com.itic.intranet.models.Role;
 
 import java.util.List;
 
 public interface RoleService {
-    List<Role> getAllRoles();
-    Role getRoleById(Long id);
-    Role createRole(RoleRequestDto roleDto);
-    Role updateRole(Long id, RoleRequestDto roleDto);
+    List<RoleResponseDto> getAllRoles();
+    RoleResponseDto getRoleById(Long id);
+    List<RoleResponseDto> searchRole(String label);
+    RoleResponseDto createRole(RoleRequestDto roleDto);
+    RoleResponseDto updateRole(Long id, RoleRequestDto roleDto);
     void deleteRole(Long id);
 }

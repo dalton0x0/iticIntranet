@@ -1,4 +1,48 @@
 package com.itic.intranet.mappers;
 
+import com.itic.intranet.dtos.UserRequestDto;
+import com.itic.intranet.dtos.UserResponseDto;
+import com.itic.intranet.models.Role;
+import com.itic.intranet.models.User;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+
+@Component
 public class UserMapper {
+    public User convertDtoToEntity(UserRequestDto userDto, Role role) {
+        return User.builder()
+                .id(userDto.getId())
+                .firstName(userDto.getFirstName().trim())
+                .lastName(userDto.getLastName().trim())
+                .email(userDto.getEmail().trim().toLowerCase())
+                .username(userDto.getUsername().trim())
+                .password(userDto.getPassword())
+                .role(role)
+                .active(true)
+                .taughtClassrooms(new ArrayList<>())
+                .notes(new ArrayList<>())
+                .build();
+    }
+
+    public UserResponseDto convertEntityToResponseDto(User user) {
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .roleType(user.getRole().getRoleType())
+                .active(user.isActive())
+                .build();
+    }
+
+    public void updateEntityFromDto(UserRequestDto userDto, User user, Role role) {
+        user.setFirstName(userDto.getFirstName().trim());
+        user.setLastName(userDto.getLastName().trim());
+        user.setEmail(userDto.getEmail().trim().toLowerCase());
+        user.setUsername(userDto.getUsername().trim());
+        user.setPassword(userDto.getPassword());
+        user.setRole(role);
+    }
 }

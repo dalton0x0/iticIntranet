@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class RoleRequestDto {
+    private Long id;
     private RoleType roleType;
-    private String wording;
+    private String label;
 }

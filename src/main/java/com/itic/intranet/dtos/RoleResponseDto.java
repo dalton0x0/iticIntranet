@@ -9,5 +9,5 @@ import lombok.Data;
 public class RoleResponseDto {
     private Long id;
     private RoleType roleType;
-    private String wording;
+    private String label;
 }
