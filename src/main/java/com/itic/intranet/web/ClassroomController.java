@@ -50,28 +50,4 @@ public class ClassroomController {
         classroomService.deleteClassroom(id);
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/{classroomId}/user/add/{userId}")
-    public ResponseEntity<Void> addUserToClassroom(@PathVariable Long classroomId, @PathVariable Long userId) {
-        classroomService.addUserToClassroom(classroomId, userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/{classroomId}/user/remove/{userId}")
-    public ResponseEntity<Void> removeUserFromClassroom(@PathVariable Long classroomId, @PathVariable Long userId) {
-        classroomService.removeUserFromClassroom(classroomId, userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{classroomId}/student/all")
-    public ResponseEntity<List<UserMinimalDto>> getClassroomStudents (@PathVariable Long classroomId) {
-        List<UserMinimalDto> students = classroomService.getClassroomStudents(classroomId);
-        return students.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(students);
-    }
-
-    @GetMapping("/{classroomId}/teacher/all")
-    public ResponseEntity<List<UserMinimalDto>> getClassroomTeachers (@PathVariable Long classroomId) {
-        List<UserMinimalDto> teachers = classroomService.getClassroomTeachers(classroomId);
-        return teachers.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(teachers);
-    }
 }

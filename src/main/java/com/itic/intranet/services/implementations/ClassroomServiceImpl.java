@@ -89,72 +89,6 @@ public class ClassroomServiceImpl implements ClassroomService {
         classroomRepository.deleteById(id);
     }
 
-    @Override
-    public void addUserToClassroom(Long classroomId, Long studentId) {
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
-        User user = userRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-
-        if (user.isTeacher()) {
-            if (user.getTaughtClassrooms().contains(classroom)) {
-                throw new BadRequestException("This teacher is already added in this classroom");
-            }
-            user.getTaughtClassrooms().add(classroom);
-        } else if (user.isStudent()) {
-            if (user.getClassroom() != null) {
-                throw new BadRequestException("This student is already assigned to a class");
-            }
-            user.setClassroom(classroom);
-        }
-
-        userRepository.save(user);
-    }
-
-    @Override
-    public void removeUserFromClassroom(Long classroomId, Long studentId) {
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
-        User user = userRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-
-        if (user.isTeacher()) {
-            if (!user.getTaughtClassrooms().contains(classroom)) {
-                throw new BadRequestException("This teacher is already removed in this classroom");
-            }
-            user.getTaughtClassrooms().remove(classroom);
-        } else if (user.isStudent()) {
-            if (!user.getClassroom().equals(classroom)) {
-                throw new BadRequestException("This student is already removed in this classroom");
-            }
-            user.setClassroom(null);
-        }
-
-        userRepository.save(user);
-    }
-
-    @Override
-    public List<UserMinimalDto> getClassroomStudents(Long classroomId) {
-        if (!classroomRepository.existsById(classroomId)) {
-            throw new ResourceNotFoundException("Classroom not found");
-        }
-
-        List<User> students = userRepository.findByClassroomIdAndRoleType(classroomId, RoleType.STUDENT);
-        return students.stream().map(this::convertToUserMinimalDto).toList();
-    }
-
-    @Override
-    public List<UserMinimalDto> getClassroomTeachers(Long classroomId) {
-        if (!classroomRepository.existsById(classroomId)) {
-            throw new ResourceNotFoundException("Classroom not found");
-        }
-
-        List<User> teachers = userRepository.findTeachersByClassroomId(classroomId);
-        return teachers.stream().map(this::convertToUserMinimalDto).toList();
-    }
-
     private void validateClassroomRequest(ClassroomRequestDto dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new BadRequestException("Name is required");
@@ -172,9 +106,5 @@ public class ClassroomServiceImpl implements ClassroomService {
         if (existingNameClassroom.isPresent() && !existingNameClassroom.get().getId().equals(classroomId)) {
             throw new BadRequestException("This new name is already exists");
         }
-    }
-
-    private UserMinimalDto convertToUserMinimalDto(User user) {
-        return new UserMinimalDto(user.getId(), user.getFirstName(), user.getLastName());
     }
 }

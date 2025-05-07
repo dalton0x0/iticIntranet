@@ -2,6 +2,7 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.UserResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
+import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.UserMapper;
 import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.RoleRepository;
@@ -26,7 +27,7 @@ public class RoleUserServiceImpl implements RoleUserService {
     @Override
     public List<UserResponseDto> getUsersByRole(Long roleId) {
         if (!roleRepository.existsById(roleId)) {
-            throw new BadRequestException("Role not found");
+            throw new ResourceNotFoundException("Role not found");
         }
         List<User> users = userRepository.findByRole_Id(roleId);
         return users.stream()

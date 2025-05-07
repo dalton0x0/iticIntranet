@@ -1,5 +1,6 @@
 package com.itic.intranet.mappers;
 
+import com.itic.intranet.dtos.UserMinimalDto;
 import com.itic.intranet.dtos.UserRequestDto;
 import com.itic.intranet.dtos.UserResponseDto;
 import com.itic.intranet.models.Role;
@@ -44,5 +45,9 @@ public class UserMapper {
         user.setUsername(userDto.getUsername().trim());
         user.setPassword(userDto.getPassword());
         user.setRole(role);
+    }
+
+    public UserMinimalDto convertEntityToUserMinimalDto(User user) {
+        return new UserMinimalDto(user.getId(), user.getFirstName(), user.getLastName());
     }
 }

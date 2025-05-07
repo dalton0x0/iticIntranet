@@ -14,9 +14,4 @@ public interface ClassroomService {
     ClassroomResponseDto createClassroom(ClassroomRequestDto classroomDto);
     ClassroomResponseDto updateClassroom(Long id, ClassroomRequestDto classroomDto);
     void deleteClassroom(Long id);
-
-    void addUserToClassroom(Long classroomId, Long studentId);
-    void removeUserFromClassroom(Long classroomId, Long studentId);
-    List<UserMinimalDto> getClassroomStudents(Long classroomId);
-    List<UserMinimalDto> getClassroomTeachers(Long classroomId);
 }
