@@ -1,12 +1,12 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.dtos.ClassroomDetailedResponseDto;
 import com.itic.intranet.dtos.ClassroomRequestDto;
 import com.itic.intranet.dtos.ClassroomResponseDto;
 import com.itic.intranet.dtos.UserMinimalDto;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
+import com.itic.intranet.mappers.ClassroomMapper;
 import com.itic.intranet.models.Classroom;
 import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.ClassroomRepository;
@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ClassroomServiceImpl implements ClassroomService {
@@ -24,50 +26,67 @@ public class ClassroomServiceImpl implements ClassroomService {
     private ClassroomRepository classroomRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ClassroomMapper classroomMapper;
 
     @Override
-    public List<Classroom> getAllClassrooms() {
-        return classroomRepository.findAll();
+    public List<ClassroomResponseDto> getAllClassrooms() {
+        return classroomRepository.findAll()
+                .stream()
+                .map(classroomMapper::convertEntityToResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Classroom getClassroomById(Long id) {
-        return classroomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-    }
-
-    @Override
-    public Classroom createClassroom(ClassroomRequestDto classroomDto) {
-        validateClassroomRequest(classroomDto);
-        checkIfClassroomExistsByName(classroomDto);
-        Classroom classroom = new Classroom();
-        classroom.setName(classroomDto.getName());
-        return classroomRepository.save(classroom);
-    }
-
-    @Override
-    public Classroom updateClassroom(Long id, ClassroomRequestDto classroomDto) {
+    public ClassroomResponseDto getClassroomById(Long id) {
         Classroom classroom = classroomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+        return classroomMapper.convertEntityToResponseDto(classroom);
+    }
+
+    @Override
+    public List<ClassroomResponseDto> searchClassroom(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new BadRequestException("Search keyword cannot be empty");
+        }
+        return classroomRepository.findByNameContaining(keyword)
+                .stream()
+                .map(classroomMapper::convertEntityToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ClassroomResponseDto createClassroom(ClassroomRequestDto classroomDto) {
+        validateClassroomRequest(classroomDto);
+        checkUniqueConstraints(classroomDto);
+        Classroom classroom = classroomMapper.convertDtoToEntity(classroomDto);
+        Classroom savedClassroom = classroomRepository.save(classroom);
+        return classroomMapper.convertEntityToResponseDto(savedClassroom);
+    }
+
+    @Override
+    public ClassroomResponseDto updateClassroom(Long id, ClassroomRequestDto classroomDto) {
+        Classroom existingClassroom = classroomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
 
         validateClassroomRequest(classroomDto);
-        checkIfClassroomExistsByName(classroomDto);
-        classroom.setName(classroomDto.getName());
-
-        return classroomRepository.save(classroom);
+        checkUniqueConstraintsForUpdate(id, classroomDto);
+        classroomMapper.updateEntityFromDto(classroomDto, existingClassroom);
+        Classroom updatedClassroom = classroomRepository.save(existingClassroom);
+        return classroomMapper.convertEntityToResponseDto(updatedClassroom);
     }
 
     @Override
     public void deleteClassroom(Long id) {
-        Classroom classroom = classroomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+        if (!classroomRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Classroom not found");
+        }
 
         long studentCount = userRepository.countByClassroomIdAndRoleType(id, RoleType.STUDENT);
         if (studentCount > 0) {
-            throw new BadRequestException("Impossible de supprimer, la classe contient " + studentCount + " étudiant");
+            throw new BadRequestException("Unable to delete this classroom, this content " + studentCount + " student");
         }
-
-        classroomRepository.delete(classroom);
+        classroomRepository.deleteById(id);
     }
 
     @Override
@@ -142,30 +161,17 @@ public class ClassroomServiceImpl implements ClassroomService {
         }
     }
 
-    private void checkIfClassroomExistsByName(ClassroomRequestDto dto) {
+    private void checkUniqueConstraints(ClassroomRequestDto dto) {
         if (classroomRepository.existsByName(dto.getName())) {
             throw new BadRequestException("Classroom already exists");
         }
     }
 
-    private ClassroomResponseDto convertToDto(Classroom classroom) {
-        return ClassroomResponseDto.builder()
-                .id(classroom.getId())
-                .name(classroom.getName())
-                .build();
-    }
-
-    private ClassroomDetailedResponseDto convertToDetailedDto(Classroom classroom) {
-        ClassroomDetailedResponseDto dto = new ClassroomDetailedResponseDto();
-        dto.setId(classroom.getId());
-        dto.setName(classroom.getName());
-
-        dto.setStudents(userRepository.findByClassroomIdAndRoleType(
-                classroom.getId(),
-                RoleType.STUDENT
-        ).stream().map(this::convertToUserMinimalDto).toList());
-
-        return dto;
+    private void checkUniqueConstraintsForUpdate(Long classroomId, ClassroomRequestDto dto) {
+        Optional<Classroom> existingNameClassroom = classroomRepository.findByName(dto.getName());
+        if (existingNameClassroom.isPresent() && !existingNameClassroom.get().getId().equals(classroomId)) {
+            throw new BadRequestException("This new name is already exists");
+        }
     }
 
     private UserMinimalDto convertToUserMinimalDto(User user) {

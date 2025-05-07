@@ -1,8 +1,8 @@
 package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
+import com.itic.intranet.dtos.ClassroomResponseDto;
 import com.itic.intranet.dtos.UserMinimalDto;
-import com.itic.intranet.models.Classroom;
 import com.itic.intranet.services.ClassroomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,40 +12,43 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v9/classroom")
+@RequestMapping("/api/v18/classrooms")
 public class ClassroomController {
 
     @Autowired
     private ClassroomService classroomService;
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Classroom>> getAllClassrooms() {
-        List<Classroom> classrooms = classroomService.getAllClassrooms();
+    @GetMapping
+    public ResponseEntity<List<ClassroomResponseDto>> getAllClassrooms() {
+        List<ClassroomResponseDto> classrooms = classroomService.getAllClassrooms();
         return classrooms.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(classrooms);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Classroom> getClassroomById(@PathVariable Long id) {
-        Classroom classroom = classroomService.getClassroomById(id);
-        return ResponseEntity.ok(classroom);
+    public ResponseEntity<ClassroomResponseDto> getClassroomById(@PathVariable Long id) {
+        return ResponseEntity.ok(classroomService.getClassroomById(id));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<Classroom> createClassroom(@RequestBody ClassroomRequestDto classroomDto) {
-        Classroom classroom = classroomService.createClassroom(classroomDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(classroom);
+    @GetMapping("/search")
+    public ResponseEntity<List<ClassroomResponseDto>> searchClassroom(@RequestParam String keyword) {
+        List<ClassroomResponseDto> classrooms = classroomService.searchClassroom(keyword);
+        return classrooms.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(classrooms);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Classroom> updateClassroom(@PathVariable Long id, @RequestBody ClassroomRequestDto classroomDto) {
-        Classroom classroom = classroomService.updateClassroom(id, classroomDto);
-        return ResponseEntity.ok(classroom);
+    @PostMapping
+    public ResponseEntity<ClassroomResponseDto> createClassroom(@RequestBody ClassroomRequestDto classroomDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(classroomService.createClassroom(classroomDto));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @PutMapping("/{id}")
+    public ResponseEntity<ClassroomResponseDto> updateClassroom(@PathVariable Long id, @RequestBody ClassroomRequestDto classroomDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(classroomService.updateClassroom(id, classroomDto));
+    }
+
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClassroom(@PathVariable Long id) {
         classroomService.deleteClassroom(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{classroomId}/user/add/{userId}")
