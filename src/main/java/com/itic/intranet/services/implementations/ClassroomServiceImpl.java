@@ -68,7 +68,6 @@ public class ClassroomServiceImpl implements ClassroomService {
     public ClassroomResponseDto updateClassroom(Long id, ClassroomRequestDto classroomDto) {
         Classroom existingClassroom = classroomRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
         validateClassroomRequest(classroomDto);
         checkUniqueConstraintsForUpdate(id, classroomDto);
         classroomMapper.updateEntityFromDto(classroomDto, existingClassroom);
@@ -81,7 +80,6 @@ public class ClassroomServiceImpl implements ClassroomService {
         if (!classroomRepository.existsById(id)) {
             throw new ResourceNotFoundException("Classroom not found");
         }
-
         long studentCount = userRepository.countByClassroomIdAndRoleType(id, RoleType.STUDENT);
         if (studentCount > 0) {
             throw new BadRequestException("Unable to delete this classroom, this content " + studentCount + " student");

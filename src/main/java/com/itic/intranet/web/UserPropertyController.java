@@ -13,30 +13,30 @@ public class UserPropertyController {
     @Autowired
     private UserPropertyService userPropertyService;
 
-    @PutMapping("/role/add/{roleId}")
+    @PutMapping("/add-role/{roleId}")
     public ResponseEntity<Void> assignRoleToUser(@PathVariable Long userId, @PathVariable Long roleId) {
         userPropertyService.assignRoleToUser(userId, roleId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/role/remove/{roleId}")
+    @DeleteMapping("/remove-role/{roleId}")
     public ResponseEntity<Void> removeRoleFromUser(@PathVariable Long userId) {
         userPropertyService.removeRoleFromUser(userId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/role")
-    public ResponseEntity<RoleType> getUserRoleType(@PathVariable Long userId) {
-        return ResponseEntity.ok(userPropertyService.getUserRoleType(userId));
+    public ResponseEntity<RoleType> getRoleOfUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(userPropertyService.getRoleOfUser(userId));
     }
 
-    @PutMapping("/classroom/add/{classroomId}")
+    @PutMapping("/add-classroom/{classroomId}")
     public ResponseEntity<Void> assignUserToClassroom(@PathVariable Long userId, @PathVariable Long classroomId) {
         userPropertyService.assignClassroomToUser(userId, classroomId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/classroom/remove/{classroomId}")
+    @DeleteMapping("/remove-classroom/{classroomId}")
     public ResponseEntity<Void> removeUserToClassroom(@PathVariable Long userId, @PathVariable Long classroomId) {
         userPropertyService.removeClassroomFromUser(userId, classroomId);
         return ResponseEntity.ok().build();

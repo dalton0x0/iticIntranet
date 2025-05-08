@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v18/classroom/{classroomId}/users")
+@RequestMapping("/api/v18/classroom/{classroomId}")
 public class ClassroomPropertyController {
 
     @Autowired

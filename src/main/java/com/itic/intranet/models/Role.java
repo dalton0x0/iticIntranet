@@ -1,6 +1,5 @@
 package com.itic.intranet.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itic.intranet.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,7 +26,5 @@ public class Role {
     private String label;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonIgnore
-    @Builder.Default
     private List<User> users = new ArrayList<>();
 }

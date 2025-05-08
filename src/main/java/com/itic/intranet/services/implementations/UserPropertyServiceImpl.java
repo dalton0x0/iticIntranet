@@ -27,10 +27,8 @@ public class UserPropertyServiceImpl implements UserPropertyService {
     public void assignRoleToUser(Long userId, Long roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-
         user.setRole(role);
         userRepository.save(user);
     }
@@ -39,24 +37,20 @@ public class UserPropertyServiceImpl implements UserPropertyService {
     public void removeRoleFromUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
         if (user.getRole() == null) {
             throw new BadRequestException("User has no role assigned");
         }
-
         user.setRole(null);
         userRepository.save(user);
     }
 
     @Override
-    public RoleType getUserRoleType(Long userId) {
+    public RoleType getRoleOfUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
         if (user.getRole() == null) {
             throw new BadRequestException("User has no role assigned");
         }
-
         return user.getRole().getRoleType();
     }
 
@@ -64,7 +58,6 @@ public class UserPropertyServiceImpl implements UserPropertyService {
     public void assignClassroomToUser(Long userId, Long classroomId) {
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
         if (user.isTeacher()) {

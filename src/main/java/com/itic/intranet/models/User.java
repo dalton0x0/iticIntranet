@@ -1,6 +1,5 @@
 package com.itic.intranet.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itic.intranet.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,11 +39,9 @@ public class User {
     @JoinTable(name = "classroom_teacher",
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "classroom_id"))
-    @JsonIgnore
     private List<Classroom> taughtClassrooms = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    @JsonIgnore
     private List<Note> notes = new ArrayList<>();
 
     private boolean active;

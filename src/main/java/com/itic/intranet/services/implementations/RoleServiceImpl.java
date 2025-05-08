@@ -2,7 +2,6 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.RoleRequestDto;
 import com.itic.intranet.dtos.RoleResponseDto;
-import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.RoleMapper;
@@ -66,10 +65,8 @@ public class RoleServiceImpl implements RoleService {
     public RoleResponseDto updateRole(Long id, RoleRequestDto roleDto) {
         Role existingRole = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-
         validateRoleRequest(roleDto);
         checkUniqueConstraintsForUpdate(id, roleDto);
-
         roleMapper.updateEntityFromDto(roleDto, existingRole);
         Role updatedRole = roleRepository.save(existingRole);
         return roleMapper.convertEntityToResponseDto(updatedRole);
@@ -80,12 +77,10 @@ public class RoleServiceImpl implements RoleService {
         if (!roleRepository.existsById(id)) {
             throw new ResourceNotFoundException("Role not found");
         }
-
         long userCount = userRepository.countByRole_Id(id);
         if (userCount > 0) {
             throw new BadRequestException("Unable to delete this role . There is one or more users with this role : " + userCount);
         }
-
         roleRepository.deleteById(id);
     }
 
@@ -105,7 +100,6 @@ public class RoleServiceImpl implements RoleService {
         roleRepository.findByRoleType(dto.getRoleType()).ifPresent(role -> {
             throw new BadRequestException("This role type already exists");
         });
-
         roleRepository.findByLabel(dto.getLabel()).ifPresent(role -> {
             throw new BadRequestException("This label already exists");
         });

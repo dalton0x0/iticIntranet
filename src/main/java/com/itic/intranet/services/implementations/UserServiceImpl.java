@@ -65,10 +65,8 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto createUser(UserRequestDto userDto) {
         validateUserRequest(userDto);
         checkUniqueConstraints(userDto);
-
         Role role = roleRepository.findByRoleType(userDto.getRoleType())
                 .orElseThrow(() -> new BadRequestException("Invalid role type"));
-
         User user = userMapper.convertDtoToEntity(userDto, role);
         User savedUser = userRepository.save(user);
         return userMapper.convertEntityToResponseDto(savedUser);
@@ -78,13 +76,10 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto updateUser(Long id, UserRequestDto userDto) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
         validateUserRequest(userDto);
-        checkUniqueConstraintsForUpdate(id, userDto);
-
         Role role = roleRepository.findByRoleType(userDto.getRoleType())
-                .orElseThrow(() -> new BadRequestException("Invalid role type"));
-
+                .orElseThrow(() -> new BadRequestException("Role type not found"));
+        checkUniqueConstraintsForUpdate(id, userDto);
         userMapper.updateEntityFromDto(userDto, existingUser, role);
         User updatedUser = userRepository.save(existingUser);
         return userMapper.convertEntityToResponseDto(updatedUser);
@@ -94,11 +89,9 @@ public class UserServiceImpl implements UserService {
     public void deactivateUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
         if (!user.isActive()) {
             throw new BadRequestException("User is already deactivated");
         }
-
         user.setActive(false);
         userRepository.save(user);
     }
@@ -146,7 +139,6 @@ public class UserServiceImpl implements UserService {
         if (existingEmailUser.isPresent() && !existingEmailUser.get().getId().equals(userId)) {
             throw new BadRequestException("This new email is already exists");
         }
-
         Optional<User> existingUsernameUser = userRepository.findByUsername(dto.getUsername());
         if (existingUsernameUser.isPresent() && !existingUsernameUser.get().getId().equals(userId)) {
             throw new BadRequestException("This new username is already exists");

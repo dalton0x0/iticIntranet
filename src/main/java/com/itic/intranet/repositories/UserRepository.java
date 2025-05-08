@@ -13,10 +13,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
+
     List<User> findByRole_Id(Long roleId);
-
     List<User> findByActive(boolean active);
-
     List<User> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstname, String lastname);
 
     @Query("SELECT u FROM User u WHERE u.classroom.id = :classroomId AND u.role.roleType = 'STUDENT'")

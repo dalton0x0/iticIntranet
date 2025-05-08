@@ -24,7 +24,7 @@ public class RolePropertyServiceImpl implements RolePropertyService {
     private UserMapper userMapper;
 
     @Override
-    public List<UserResponseDto> getUsersByRole(Long roleId) {
+    public List<UserResponseDto> getUsersOfRole(Long roleId) {
         if (!roleRepository.existsById(roleId)) {
             throw new ResourceNotFoundException("Role not found");
         }

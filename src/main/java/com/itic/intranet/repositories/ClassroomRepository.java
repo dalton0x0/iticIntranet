@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
     boolean existsByName(String name);
-
-    List<Classroom> findByNameContaining(String name);
     Optional<Classroom> findByName(String name);
+    List<Classroom> findByNameContaining(String name);
 }

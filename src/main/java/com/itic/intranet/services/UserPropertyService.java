@@ -6,7 +6,7 @@ public interface UserPropertyService {
 
     void assignRoleToUser(Long userId, Long roleId);
     void removeRoleFromUser(Long userId);
-    RoleType getUserRoleType(Long userId);
+    RoleType getRoleOfUser(Long userId);
 
     void assignClassroomToUser(Long userId, Long classroomId);
     void removeClassroomFromUser(Long userId, Long classroomId);
