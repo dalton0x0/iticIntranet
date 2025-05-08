@@ -2,8 +2,12 @@ package com.itic.intranet.services;
 
 import com.itic.intranet.enums.RoleType;
 
-public interface UserRoleService {
+public interface UserPropertyService {
+
     void assignRoleToUser(Long userId, Long roleId);
     void removeRoleFromUser(Long userId);
     RoleType getUserRoleType(Long userId);
+
+    void assignClassroomToUser(Long userId, Long classroomId);
+    void removeClassroomFromUser(Long userId, Long classroomId);
 }

@@ -7,7 +7,7 @@ import com.itic.intranet.mappers.UserMapper;
 import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.UserRepository;
-import com.itic.intranet.services.ClassroomUserService;
+import com.itic.intranet.services.ClassroomPropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ClassroomUserServiceImpl implements ClassroomUserService {
+public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
 
     @Autowired
     private ClassroomRepository classroomRepository;
