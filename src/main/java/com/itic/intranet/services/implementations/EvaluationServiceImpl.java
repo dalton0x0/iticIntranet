@@ -6,6 +6,7 @@ import com.itic.intranet.dtos.EvaluationResponseDto;
 import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
+import com.itic.intranet.mappers.EvaluationMapper;
 import com.itic.intranet.models.Classroom;
 import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.models.Note;
@@ -17,7 +18,9 @@ import com.itic.intranet.services.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EvaluationServiceImpl implements EvaluationService {
@@ -28,66 +31,74 @@ public class EvaluationServiceImpl implements EvaluationService {
     private UserRepository userRepository;
     @Autowired
     private ClassroomRepository classroomRepository;
+    @Autowired
+    private EvaluationMapper evaluationMapper;
 
     @Override
     public List<EvaluationDetailedResponseDto> getAllEvaluations() {
-        return evaluationRepository.findAll().stream().map(this::convertToDetailedDto).toList();
+        return evaluationRepository.findAll()
+                .stream()
+                .map(evaluationMapper::convertToDetailedDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Evaluation getEvaluationById(Long id) {
-        return evaluationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Evaluation not found"));
+    public EvaluationResponseDto getEvaluationById(Long id) {
+        Evaluation evaluation = getEvaluation(id);
+        return evaluationMapper.convertEntityToResponseDto(evaluation);
     }
 
     @Override
-    public List<Evaluation> searchEvaluations(String title) {
+    public List<EvaluationResponseDto> searchEvaluations(String title) {
         if (title == null || title.trim().isEmpty()) {
-            throw new BadRequestException("Incorrect search");
+            throw new BadRequestException("Search title cannot be empty");
         }
-        return evaluationRepository.findByTitleContainingIgnoreCase(title);
+        return evaluationRepository.findByTitleContainingIgnoreCase(title)
+                .stream()
+                .map(evaluationMapper::convertEntityToResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Evaluation createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId) {
+    public EvaluationResponseDto createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId) {
         User user = userRepository.findById(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
-
         if (!user.isTeacher()) {
             throw new BadRequestException("Only teacher can create evaluations");
         }
-
         validateEvaluationRequest(evaluationDto);
-        Evaluation evaluation = new Evaluation();
-        mapToDtoEntity(evaluationDto, evaluation);
-        evaluation.setCreatedBy(user);
-
-        return evaluationRepository.save(evaluation);
+        Evaluation evaluation = evaluationMapper.convertDtoToEntity(evaluationDto, user);
+        Evaluation savedEvaluation = evaluationRepository.save(evaluation);
+        return evaluationMapper.convertEntityToResponseDto(savedEvaluation);
     }
 
     @Override
-    public Evaluation updateEvaluation(Long id, EvaluationRequestDto evaluationDto) {
-        Evaluation evaluation = getEvaluationById(id);
+    public EvaluationResponseDto updateEvaluation(Long id, EvaluationRequestDto evaluationDto) {
+        Evaluation existingEvaluation = getEvaluation(id);
         validateEvaluationRequest(evaluationDto);
-        mapToDtoEntity(evaluationDto, evaluation);
-
-        return evaluationRepository.save(evaluation);
+        evaluationMapper.updateFromEntityDto(evaluationDto, existingEvaluation, existingEvaluation.getCreatedBy());
+        Evaluation updatedEvaluation = evaluationRepository.save(existingEvaluation);
+        return evaluationMapper.convertEntityToResponseDto(updatedEvaluation);
     }
 
     @Override
     public void deleteEvaluation(Long id) {
-        Evaluation evaluation = getEvaluationById(id);
-
+        Evaluation evaluation = getEvaluation(id);
         if (!evaluation.getNotes().isEmpty()) {
             throw new BadRequestException("Cannot delete: Evaluation has associated notes");
         }
-
         evaluationRepository.delete(evaluation);
+    }
+
+    private Evaluation getEvaluation(Long id) {
+        return evaluationRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Evaluation not found")
+        );
     }
 
     @Override
     public void addClassroomToEvaluation(Long evaluationId, Long classroomId) {
-        Evaluation evaluation = getEvaluationById(evaluationId);
+        Evaluation evaluation = getEvaluation(evaluationId);
 
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
@@ -102,7 +113,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public void removeClassroomToEvaluation(Long evaluationId, Long classroomId) {
-        Evaluation evaluation = getEvaluationById(evaluationId);
+        Evaluation evaluation = getEvaluation(evaluationId);
 
         Classroom classroom = classroomRepository.findById(classroomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
@@ -115,54 +126,19 @@ public class EvaluationServiceImpl implements EvaluationService {
         evaluationRepository.save(evaluation);
     }
 
-    private void validateEvaluationRequest(EvaluationRequestDto dto) {
-        if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
+    private void validateEvaluationRequest(EvaluationRequestDto evaluationRequestDto) {
+        if (evaluationRequestDto.getTitle() == null || evaluationRequestDto.getTitle().trim().isEmpty()) {
             throw new BadRequestException("Title is required");
         }
-        if (dto.getMinValue() < 0) {
+        if (evaluationRequestDto.getMinValue() < 0) {
             throw new BadRequestException("The minimum note cannot be negative");
         }
-        if (dto.getMaxValue() > 100) {
+        if (evaluationRequestDto.getMaxValue() > 100) {
             throw new BadRequestException("The maximum note cannot exceed 100");
         }
-        if (dto.getMinValue() >= dto.getMaxValue()) {
+        if (evaluationRequestDto.getMinValue() >= evaluationRequestDto.getMaxValue()) {
             throw new BadRequestException("The minimum note must be lower than the maximum score");
         }
-        if (dto.getDate() == null ) {
-            throw new BadRequestException("The date cannot be null");
-        }
-    }
-
-    private void mapToDtoEntity(EvaluationRequestDto evaluationDto, Evaluation evaluation) {
-        evaluation.setTitle(evaluationDto.getTitle());
-        evaluation.setDescription(evaluationDto.getDescription());
-        evaluation.setMinValue(evaluationDto.getMinValue());
-        evaluation.setMaxValue(evaluationDto.getMaxValue());
-        evaluation.setDate(evaluationDto.getDate());
-    }
-
-    private EvaluationResponseDto convertToDto(Evaluation evaluation) {
-        return EvaluationResponseDto.builder()
-                .id(evaluation.getId())
-                .title(evaluation.getTitle())
-                .date(evaluation.getDate())
-                .createdBy(evaluation.getCreatedBy().getUsername())
-                .build();
-    }
-
-    private EvaluationDetailedResponseDto convertToDetailedDto(Evaluation evaluation) {
-        return EvaluationDetailedResponseDto.builder()
-                .id(evaluation.getId())
-                .title(evaluation.getTitle())
-                .description(evaluation.getDescription())
-                .minValue(evaluation.getMinValue())
-                .maxValue(evaluation.getMaxValue())
-                .date(evaluation.getDate())
-                .createdBy(evaluation.getCreatedBy().getUsername())
-                .classrooms(evaluation.getClassrooms().stream()
-                        .map(Classroom::getName)
-                        .toList())
-                .build();
     }
 
     private NoteResponseDto convertToNoteDto(Note note) {

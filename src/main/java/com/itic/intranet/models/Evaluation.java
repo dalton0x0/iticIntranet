@@ -1,6 +1,5 @@
 package com.itic.intranet.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,10 +36,8 @@ public class Evaluation {
             joinColumns = @JoinColumn(name = "evaluation_id"),
             inverseJoinColumns = @JoinColumn(name = "classroom_id")
     )
-    @JsonIgnore
     private List<Classroom> classrooms = new ArrayList<>();
 
     @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
     private List<Note> notes = new ArrayList<>();
 }

@@ -2,17 +2,19 @@ package com.itic.intranet.services;
 
 import com.itic.intranet.dtos.EvaluationDetailedResponseDto;
 import com.itic.intranet.dtos.EvaluationRequestDto;
+import com.itic.intranet.dtos.EvaluationResponseDto;
 import com.itic.intranet.models.Evaluation;
 
 import java.util.List;
 
 public interface EvaluationService {
     List<EvaluationDetailedResponseDto> getAllEvaluations();
-    Evaluation getEvaluationById(Long id);
-    List<Evaluation> searchEvaluations(String title);
-    Evaluation createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId);
-    Evaluation updateEvaluation(Long id, EvaluationRequestDto evaluationDto);
+    EvaluationResponseDto getEvaluationById(Long id);
+    List<EvaluationResponseDto> searchEvaluations(String title);
+    EvaluationResponseDto createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId);
+    EvaluationResponseDto updateEvaluation(Long id, EvaluationRequestDto evaluationDto);
     void deleteEvaluation(Long id);
+
     void addClassroomToEvaluation(Long evaluationId, Long classroomId);
     void removeClassroomToEvaluation(Long evaluationId, Long classroomId);
 }
