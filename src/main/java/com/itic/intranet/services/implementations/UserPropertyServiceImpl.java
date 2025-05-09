@@ -10,18 +10,16 @@ import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.UserPropertyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserPropertyServiceImpl implements UserPropertyService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private ClassroomRepository classroomRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final ClassroomRepository classroomRepository;
 
     @Override
     public void assignRoleToUser(Long userId, Long roleId) {

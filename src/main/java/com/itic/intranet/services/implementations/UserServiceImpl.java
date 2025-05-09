@@ -10,7 +10,7 @@ import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,14 +18,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserResponseDto> getAllUsers() {

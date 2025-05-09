@@ -2,7 +2,7 @@ package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.UserMinimalDto;
 import com.itic.intranet.services.ClassroomPropertyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,10 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v18/classroom/{classroomId}")
+@RequiredArgsConstructor
 public class ClassroomPropertyController {
 
-    @Autowired
-    private ClassroomPropertyService classroomPropertyService;
+    private final ClassroomPropertyService classroomPropertyService;
 
     @GetMapping("/teachers")
     public ResponseEntity<List<UserMinimalDto>> getTeachersOfClassroom(@PathVariable Long classroomId) {

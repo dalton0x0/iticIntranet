@@ -2,7 +2,7 @@ package com.itic.intranet.web;
 
 import com.itic.intranet.dtos.UserResponseDto;
 import com.itic.intranet.services.RolePropertyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,10 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v18/roles/{roleId}")
+@RequiredArgsConstructor
 public class RolePropertyController {
 
-    @Autowired
-    private RolePropertyService rolePropertyService ;
+    private final RolePropertyService rolePropertyService ;
 
     @GetMapping("/users")
     public ResponseEntity<List<UserResponseDto>> getUsersOfRole(@PathVariable Long roleId) {

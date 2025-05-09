@@ -2,17 +2,15 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
 import com.itic.intranet.dtos.ClassroomResponseDto;
-import com.itic.intranet.dtos.UserMinimalDto;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.ClassroomMapper;
 import com.itic.intranet.models.Classroom;
-import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.ClassroomService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,14 +18,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ClassroomServiceImpl implements ClassroomService {
 
-    @Autowired
-    private ClassroomRepository classroomRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ClassroomMapper classroomMapper;
+    private final ClassroomRepository classroomRepository;
+    private final UserRepository userRepository;
+    private final ClassroomMapper classroomMapper;
 
     @Override
     public List<ClassroomResponseDto> getAllClassrooms() {

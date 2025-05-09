@@ -7,32 +7,25 @@ import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.EvaluationMapper;
-import com.itic.intranet.models.Classroom;
 import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.models.Note;
 import com.itic.intranet.models.User;
-import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.EvaluationRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.EvaluationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class EvaluationServiceImpl implements EvaluationService {
 
-    @Autowired
-    private EvaluationRepository evaluationRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ClassroomRepository classroomRepository;
-    @Autowired
-    private EvaluationMapper evaluationMapper;
+    private final EvaluationRepository evaluationRepository;
+    private final UserRepository userRepository;
+    private final EvaluationMapper evaluationMapper;
 
     @Override
     public List<EvaluationDetailedResponseDto> getAllEvaluations() {

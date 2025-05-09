@@ -2,16 +2,16 @@ package com.itic.intranet.web;
 
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.services.UserPropertyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v18/users/{userId}")
+@RequiredArgsConstructor
 public class UserPropertyController {
 
-    @Autowired
-    private UserPropertyService userPropertyService;
+    private final UserPropertyService userPropertyService;
 
     @PutMapping("/add-role/{roleId}")
     public ResponseEntity<Void> assignRoleToUser(@PathVariable Long userId, @PathVariable Long roleId) {

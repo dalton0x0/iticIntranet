@@ -7,21 +7,19 @@ import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.RolePropertyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RolePropertyServiceImpl implements RolePropertyService {
 
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserMapper userMapper;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserResponseDto> getUsersOfRole(Long roleId) {

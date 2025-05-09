@@ -3,9 +3,8 @@ package com.itic.intranet.web;
 import com.itic.intranet.dtos.EvaluationDetailedResponseDto;
 import com.itic.intranet.dtos.EvaluationRequestDto;
 import com.itic.intranet.dtos.EvaluationResponseDto;
-import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.services.EvaluationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v18/evaluations")
+@RequiredArgsConstructor
 public class EvaluationController {
 
-    @Autowired
-    private EvaluationService evaluationService;
+    private final EvaluationService evaluationService;
 
     @GetMapping
     public ResponseEntity<List<EvaluationDetailedResponseDto>> getAllEvaluations() {

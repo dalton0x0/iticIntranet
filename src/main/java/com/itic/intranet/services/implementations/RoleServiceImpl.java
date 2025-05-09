@@ -9,7 +9,7 @@ import com.itic.intranet.models.Role;
 import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,14 +17,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleMapper roleMapper;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final RoleMapper roleMapper;
 
     @Override
     public List<RoleResponseDto> getAllRoles() {

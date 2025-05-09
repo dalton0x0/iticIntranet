@@ -7,16 +7,15 @@ import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.EvaluationRepository;
 import com.itic.intranet.services.EvaluationPropertyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EvaluationPropertyServiceImpl implements EvaluationPropertyService {
 
-    @Autowired
-    private EvaluationRepository evaluationRepository;
-    @Autowired
-    private ClassroomRepository classroomRepository;
+    private final EvaluationRepository evaluationRepository;
+    private final ClassroomRepository classroomRepository;
 
     @Override
     public void addClassroomToEvaluation(Long evaluationId, Long classroomId) {
