@@ -20,8 +20,8 @@ public class UserPropertyController {
     }
 
     @DeleteMapping("/remove-role/{roleId}")
-    public ResponseEntity<Void> removeRoleFromUser(@PathVariable Long userId) {
-        userPropertyService.removeRoleFromUser(userId);
+    public ResponseEntity<Void> removeRoleFromUser(@PathVariable Long userId, @PathVariable Long roleId) {
+        userPropertyService.removeRoleFromUser(userId, roleId);
         return ResponseEntity.ok().build();
     }
 

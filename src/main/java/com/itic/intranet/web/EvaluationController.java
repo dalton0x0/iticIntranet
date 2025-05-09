@@ -37,7 +37,7 @@ public class EvaluationController {
         return evaluations.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(evaluations);
     }
 
-    @PostMapping("/add/teacher/{teacherId}")
+    @PostMapping("/teacher/{teacherId}/add-evaluation")
     public ResponseEntity<EvaluationResponseDto> createEvaluation(@RequestBody EvaluationRequestDto evaluationDto, @PathVariable Long teacherId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(evaluationService.createEvaluation(evaluationDto, teacherId));
     }
@@ -50,18 +50,6 @@ public class EvaluationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvaluation(@PathVariable Long id) {
         evaluationService.deleteEvaluation(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{evaluationId}/classrooms/add/{classroomId}")
-    public ResponseEntity<Void> addClassroomToEvaluation(@PathVariable Long evaluationId, @PathVariable Long classroomId) {
-        evaluationService.addClassroomToEvaluation(evaluationId, classroomId);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{evaluationId}/classrooms/remove/{classroomId}")
-    public ResponseEntity<Void> removeClassroomToEvaluation(@PathVariable Long evaluationId, @PathVariable Long classroomId) {
-        evaluationService.removeClassroomToEvaluation(evaluationId, classroomId);
         return ResponseEntity.ok().build();
     }
 }

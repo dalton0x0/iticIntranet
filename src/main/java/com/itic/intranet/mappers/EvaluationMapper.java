@@ -50,7 +50,7 @@ public class EvaluationMapper {
                 .minValue(evaluation.getMinValue())
                 .maxValue(evaluation.getMaxValue())
                 .date(evaluation.getDate())
-                .createdBy(evaluation.getCreatedBy().getUsername())
+                .createdBy(evaluation.getCreatedBy().getLastName() + " " + evaluation.getCreatedBy().getFirstName())
                 .classrooms(evaluation.getClassrooms().stream()
                         .map(Classroom::getName)
                         .toList())

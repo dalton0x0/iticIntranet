@@ -34,11 +34,16 @@ public class UserPropertyServiceImpl implements UserPropertyService {
     }
 
     @Override
-    public void removeRoleFromUser(Long userId) {
+    public void removeRoleFromUser(Long userId, Long roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
         if (user.getRole() == null) {
             throw new BadRequestException("User has no role assigned");
+        }
+        if (!user.getRole().equals(role)) {
+            throw new BadRequestException("User has not this role assigned");
         }
         user.setRole(null);
         userRepository.save(user);

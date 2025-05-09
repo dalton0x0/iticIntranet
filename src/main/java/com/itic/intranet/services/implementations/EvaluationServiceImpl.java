@@ -96,36 +96,6 @@ public class EvaluationServiceImpl implements EvaluationService {
         );
     }
 
-    @Override
-    public void addClassroomToEvaluation(Long evaluationId, Long classroomId) {
-        Evaluation evaluation = getEvaluation(evaluationId);
-
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
-        if (evaluation.getClassrooms().contains(classroom)) {
-            throw new BadRequestException("This evaluation has already associated to this classrooms");
-        }
-
-        evaluation.getClassrooms().add(classroom);
-        evaluationRepository.save(evaluation);
-    }
-
-    @Override
-    public void removeClassroomToEvaluation(Long evaluationId, Long classroomId) {
-        Evaluation evaluation = getEvaluation(evaluationId);
-
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-
-        if (!evaluation.getClassrooms().contains(classroom)) {
-            throw new BadRequestException("This evaluation has been already removed to this classroom");
-        }
-
-        evaluation.getClassrooms().remove(classroom);
-        evaluationRepository.save(evaluation);
-    }
-
     private void validateEvaluationRequest(EvaluationRequestDto evaluationRequestDto) {
         if (evaluationRequestDto.getTitle() == null || evaluationRequestDto.getTitle().trim().isEmpty()) {
             throw new BadRequestException("Title is required");
