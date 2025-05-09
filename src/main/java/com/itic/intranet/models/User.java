@@ -41,7 +41,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "classroom_id"))
     private List<Classroom> taughtClassrooms = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "student")
     private List<Note> notes = new ArrayList<>();
 
     private boolean active;

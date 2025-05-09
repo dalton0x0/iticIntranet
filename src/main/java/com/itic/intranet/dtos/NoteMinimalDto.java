@@ -1,15 +1,16 @@
 package com.itic.intranet.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-public class NoteResponseDto {
+@AllArgsConstructor
+@NoArgsConstructor
+public class NoteMinimalDto {
     private Long id;
     private int value;
-    private Long studentId;
-    private String studentName;
-    private Long evaluationId;
     private String evaluationTitle;
 }

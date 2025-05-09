@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class NoteRequestDto {
+    private Long id;
+    private int value;
     private Long studentId;
     private Long evaluationId;
-    private int value;
 }

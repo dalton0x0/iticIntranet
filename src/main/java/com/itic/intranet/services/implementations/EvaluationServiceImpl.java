@@ -115,7 +115,7 @@ public class EvaluationServiceImpl implements EvaluationService {
         return NoteResponseDto.builder()
                 .id(note.getId())
                 .value(note.getValue())
-                .studentName(note.getUser().getFirstName() + " " + note.getUser().getLastName())
+                .studentName(note.getStudent().getFirstName() + " " + note.getStudent().getLastName())
                 .build();
     }
 }

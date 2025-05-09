@@ -1,5 +1,6 @@
 package com.itic.intranet.services;
 
+import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.dtos.NoteRequestDto;
 import com.itic.intranet.dtos.NoteResponseDto;
 
@@ -12,5 +13,5 @@ public interface NoteService {
     NoteResponseDto updateNote(Long id, NoteRequestDto noteDto);
     void deleteNote(Long id);
     List<NoteResponseDto> getNotesByEvaluation(Long evaluationId);
-    List<NoteResponseDto> getNotesByStudent(Long studentId);
+    List<NoteMinimalDto> getNotesByStudent(Long studentId);
 }

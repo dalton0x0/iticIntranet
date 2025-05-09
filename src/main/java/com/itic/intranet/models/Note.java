@@ -14,12 +14,11 @@ import lombok.NoArgsConstructor;
 public class Note {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private int value;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User student;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evaluation_id", nullable = false)
