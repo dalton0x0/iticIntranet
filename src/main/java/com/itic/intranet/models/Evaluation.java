@@ -18,12 +18,12 @@ import java.util.List;
 public class Evaluation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
     private String description;
     private int minValue;
     private int maxValue;
-    private LocalDateTime date;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by_id", nullable = false)
@@ -40,4 +40,7 @@ public class Evaluation {
 
     @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Note> notes = new ArrayList<>();
+
+    private boolean finished;
+    private LocalDateTime finishedAt;
 }

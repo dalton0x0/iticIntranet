@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 public class EvaluationResponseDto {
     private Long id;
     private String title;
-    private LocalDateTime date;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String createdBy;
+    private LocalDateTime finishedAt;
+    private boolean finished;
 }

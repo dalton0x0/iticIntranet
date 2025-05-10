@@ -14,4 +14,5 @@ public interface EvaluationService {
     EvaluationResponseDto createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId);
     EvaluationResponseDto updateEvaluation(Long id, EvaluationRequestDto evaluationDto);
     void deleteEvaluation(Long id);
+    void finishEvaluation(Long id);
 }

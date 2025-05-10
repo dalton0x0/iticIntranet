@@ -11,6 +11,8 @@ public class EvaluationRequestDto {
     private String description;
     private int minValue;
     private int maxValue;
-    private LocalDateTime date;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String createdBy;
+    private LocalDateTime finishedAt;
 }

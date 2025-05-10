@@ -51,4 +51,10 @@ public class EvaluationController {
         evaluationService.deleteEvaluation(id);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/{id}/finish")
+    public ResponseEntity<Void> finishEvaluation(@PathVariable Long id) {
+        evaluationService.finishEvaluation(id);
+        return ResponseEntity.ok().build();
+    }
 }

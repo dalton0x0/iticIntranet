@@ -16,6 +16,7 @@ import com.itic.intranet.services.EvaluationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,17 @@ public class EvaluationServiceImpl implements EvaluationService {
             throw new BadRequestException("Cannot delete: Evaluation has associated notes");
         }
         evaluationRepository.delete(evaluation);
+    }
+
+    @Override
+    public void finishEvaluation(Long id) {
+        Evaluation evaluation = getEvaluation(id);
+        if (evaluation.isFinished()) {
+            throw new BadRequestException("Evaluation has already been finished");
+        }
+        evaluation.setFinished(true);
+        evaluation.setFinishedAt(LocalDateTime.now());
+        evaluationRepository.save(evaluation);
     }
 
     private Evaluation getEvaluation(Long id) {

@@ -56,6 +56,9 @@ public class NoteServiceImpl implements NoteService {
         if (!isStudentInEvaluationClass(student, evaluation)) {
             throw new BadRequestException("Student is not in the evaluation class");
         }
+        if (noteDto.getEvaluationId().equals(evaluation.getId())) {
+            throw new BadRequestException("The student already has a note for this evaluation");
+        }
         Note note = noteMapper.convertDtoToEntity(noteDto, student, evaluation);
         Note savedNote = noteRepository.save(note);
         return noteMapper.convertEntityToResponseDto(savedNote);
@@ -114,6 +117,9 @@ public class NoteServiceImpl implements NoteService {
         }
         if (noteDto.getValue() > evaluation.getMaxValue()) {
             throw new BadRequestException("Note cannot be more than " + evaluation.getMinValue());
+        }
+        if (evaluation.isFinished()) {
+            throw new BadRequestException("Cannot create for this evaluation. It has already been finished");
         }
     }
 

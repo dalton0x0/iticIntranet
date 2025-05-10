@@ -19,8 +19,11 @@ public class EvaluationMapper {
                 .description(evaluationDto.getDescription().trim())
                 .minValue(evaluationDto.getMinValue())
                 .maxValue(evaluationDto.getMaxValue())
-                .date(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(null)
                 .createdBy(user)
+                .finished(false)
+                .finishedAt(evaluationDto.getFinishedAt())
                 .build();
     }
 
@@ -28,8 +31,11 @@ public class EvaluationMapper {
         return EvaluationResponseDto.builder()
                 .id(evaluation.getId())
                 .title(evaluation.getTitle())
-                .date(evaluation.getDate())
-                .createdBy(evaluation.getCreatedBy().getLastName())
+                .createdAt(evaluation.getCreatedAt())
+                .updatedAt(evaluation.getUpdatedAt())
+                .createdBy(evaluation.getCreatedBy().getLastName() + " " + evaluation.getCreatedBy().getFirstName())
+                .finished(evaluation.isFinished())
+                .finishedAt(evaluation.getFinishedAt())
                 .build();
     }
 
@@ -38,7 +44,7 @@ public class EvaluationMapper {
         evaluation.setDescription(evaluationRequestDto.getDescription().trim());
         evaluation.setMinValue(evaluationRequestDto.getMinValue());
         evaluation.setMaxValue(evaluationRequestDto.getMaxValue());
-        evaluation.setDate(LocalDateTime.now());
+        evaluation.setUpdatedAt(LocalDateTime.now());
         evaluation.setCreatedBy(user);
     }
 
@@ -49,8 +55,11 @@ public class EvaluationMapper {
                 .description(evaluation.getDescription())
                 .minValue(evaluation.getMinValue())
                 .maxValue(evaluation.getMaxValue())
-                .date(evaluation.getDate())
+                .createdAt(evaluation.getCreatedAt())
+                .updatedAt(evaluation.getUpdatedAt())
                 .createdBy(evaluation.getCreatedBy().getLastName() + " " + evaluation.getCreatedBy().getFirstName())
+                .finished(evaluation.isFinished())
+                .finishedAt(evaluation.getFinishedAt())
                 .classrooms(evaluation.getClassrooms().stream()
                         .map(Classroom::getName)
                         .toList())
