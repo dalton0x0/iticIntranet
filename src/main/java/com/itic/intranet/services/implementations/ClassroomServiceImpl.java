@@ -1,10 +1,10 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.ClassroomRequestDto;
 import com.itic.intranet.dtos.ClassroomResponseDto;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
-import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.ClassroomMapper;
 import com.itic.intranet.models.Classroom;
 import com.itic.intranet.repositories.ClassroomRepository;
@@ -24,6 +24,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     private final ClassroomRepository classroomRepository;
     private final UserRepository userRepository;
     private final ClassroomMapper classroomMapper;
+    private final EntityHelper entityHelper;
 
     @Override
     public List<ClassroomResponseDto> getAllClassrooms() {
@@ -35,8 +36,7 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public ClassroomResponseDto getClassroomById(Long id) {
-        Classroom classroom = classroomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+        Classroom classroom = entityHelper.getClassroom(id);
         return classroomMapper.convertEntityToResponseDto(classroom);
     }
 
@@ -62,8 +62,7 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public ClassroomResponseDto updateClassroom(Long id, ClassroomRequestDto classroomDto) {
-        Classroom existingClassroom = classroomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
+        Classroom existingClassroom = entityHelper.getClassroom(id);
         validateClassroomRequest(classroomDto);
         checkUniqueConstraintsForUpdate(id, classroomDto);
         classroomMapper.updateEntityFromDto(classroomDto, existingClassroom);
@@ -73,14 +72,12 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public void deleteClassroom(Long id) {
-        if (!classroomRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Classroom not found");
-        }
+        Classroom classroom = entityHelper.getClassroom(id);
         long studentCount = userRepository.countByClassroomIdAndRoleType(id, RoleType.STUDENT);
         if (studentCount > 0) {
             throw new BadRequestException("Unable to delete this classroom, this content " + studentCount + " student");
         }
-        classroomRepository.deleteById(id);
+        classroomRepository.delete(classroom);
     }
 
     private void validateClassroomRequest(ClassroomRequestDto dto) {

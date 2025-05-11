@@ -1,13 +1,11 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
-import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.models.Classroom;
 import com.itic.intranet.models.Role;
 import com.itic.intranet.models.User;
-import com.itic.intranet.repositories.ClassroomRepository;
-import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.UserPropertyService;
 import lombok.RequiredArgsConstructor;
@@ -18,25 +16,20 @@ import org.springframework.stereotype.Service;
 public class UserPropertyServiceImpl implements UserPropertyService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final ClassroomRepository classroomRepository;
+    private final EntityHelper entityHelper;
 
     @Override
     public void assignRoleToUser(Long userId, Long roleId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        User user = entityHelper.getUser(userId);
+        Role role = entityHelper.getRole(roleId);
         user.setRole(role);
         userRepository.save(user);
     }
 
     @Override
     public void removeRoleFromUser(Long userId, Long roleId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        User user = entityHelper.getUser(userId);
+        Role role = entityHelper.getRole(roleId);
         if (user.getRole() == null) {
             throw new BadRequestException("User has no role assigned");
         }
@@ -49,8 +42,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
 
     @Override
     public RoleType getRoleOfUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = entityHelper.getUser(userId);
         if (user.getRole() == null) {
             throw new BadRequestException("User has no role assigned");
         }
@@ -59,10 +51,8 @@ public class UserPropertyServiceImpl implements UserPropertyService {
 
     @Override
     public void assignClassroomToUser(Long userId, Long classroomId) {
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        Classroom classroom = entityHelper.getClassroom(classroomId);
+        User user = entityHelper.getUser(userId);
         if (user.isTeacher()) {
             if (user.getTaughtClassrooms().contains(classroom)) {
                 throw new BadRequestException("This teacher is already added in this classroom");
@@ -81,10 +71,8 @@ public class UserPropertyServiceImpl implements UserPropertyService {
 
     @Override
     public void removeClassroomFromUser(Long userId, Long classroomId) {
-        Classroom classroom = classroomRepository.findById(classroomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        Classroom classroom = entityHelper.getClassroom(classroomId);
+        User user = entityHelper.getUser(userId);
         if (user.isTeacher()) {
             if (!user.getTaughtClassrooms().contains(classroom)) {
                 throw new BadRequestException("This teacher is already removed in this classroom");

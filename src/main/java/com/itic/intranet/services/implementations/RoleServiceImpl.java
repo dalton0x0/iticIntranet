@@ -1,9 +1,9 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.RoleRequestDto;
 import com.itic.intranet.dtos.RoleResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
-import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.RoleMapper;
 import com.itic.intranet.models.Role;
 import com.itic.intranet.repositories.RoleRepository;
@@ -23,6 +23,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final RoleMapper roleMapper;
+    private final EntityHelper entityHelper;
 
     @Override
     public List<RoleResponseDto> getAllRoles() {
@@ -34,8 +35,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponseDto getRoleById(Long id) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        Role role = entityHelper.getRole(id);
         return roleMapper.convertEntityToResponseDto(role);
     }
 
@@ -61,8 +61,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponseDto updateRole(Long id, RoleRequestDto roleDto) {
-        Role existingRole = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        Role existingRole = entityHelper.getRole(id);
         validateRoleRequest(roleDto);
         checkUniqueConstraintsForUpdate(id, roleDto);
         roleMapper.updateEntityFromDto(roleDto, existingRole);
@@ -72,14 +71,12 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRole(Long id) {
-        if (!roleRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Role not found");
-        }
+        Role role = entityHelper.getRole(id);
         long userCount = userRepository.countByRole_Id(id);
         if (userCount > 0) {
             throw new BadRequestException("Unable to delete this role . There is one or more users with this role : " + userCount);
         }
-        roleRepository.deleteById(id);
+        roleRepository.delete(role);
     }
 
     private void validateRoleRequest(RoleRequestDto roleDto) {

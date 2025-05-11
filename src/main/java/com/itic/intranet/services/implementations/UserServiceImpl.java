@@ -1,13 +1,12 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.UserRequestDto;
 import com.itic.intranet.dtos.UserResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
-import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.UserMapper;
 import com.itic.intranet.models.Role;
 import com.itic.intranet.models.User;
-import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +21,8 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final EntityHelper entityHelper;
 
     @Override
     public List<UserResponseDto> getAllUsers() {
@@ -43,8 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = entityHelper.getUser(id);
         return userMapper.convertEntityToResponseDto(user);
     }
 
@@ -63,8 +61,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto createUser(UserRequestDto userDto) {
         validateUserRequest(userDto);
         checkUniqueConstraints(userDto);
-        Role role = roleRepository.findByRoleType(userDto.getRoleType())
-                .orElseThrow(() -> new BadRequestException("Invalid role type"));
+        Role role = entityHelper.getRoleRoleType(userDto.getRoleType());
         User user = userMapper.convertDtoToEntity(userDto, role);
         User savedUser = userRepository.save(user);
         return userMapper.convertEntityToResponseDto(savedUser);
@@ -72,11 +69,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateUser(Long id, UserRequestDto userDto) {
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User existingUser = entityHelper.getUser(id);
         validateUserRequest(userDto);
-        Role role = roleRepository.findByRoleType(userDto.getRoleType())
-                .orElseThrow(() -> new BadRequestException("Role type not found"));
+        Role role = entityHelper.getRoleRoleType(userDto.getRoleType());
         checkUniqueConstraintsForUpdate(id, userDto);
         userMapper.updateEntityFromDto(userDto, existingUser, role);
         User updatedUser = userRepository.save(existingUser);
@@ -85,21 +80,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deactivateUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        if (!user.isActive()) {
-            throw new BadRequestException("User is already deactivated");
-        }
-        user.setActive(false);
-        userRepository.save(user);
+        User existingUser = entityHelper.getActiveUser(id);
+        existingUser.setActive(false);
+        userRepository.save(existingUser);
     }
 
     @Override
     public void permanentlyDeleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found");
-        }
-        userRepository.deleteById(id);
+        User user = entityHelper.getUser(id);
+        userRepository.delete(user);
     }
 
     private void validateUserRequest(UserRequestDto dto) {

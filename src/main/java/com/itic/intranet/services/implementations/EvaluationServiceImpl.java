@@ -1,17 +1,16 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.EvaluationDetailedResponseDto;
 import com.itic.intranet.dtos.EvaluationRequestDto;
 import com.itic.intranet.dtos.EvaluationResponseDto;
 import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
-import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.EvaluationMapper;
 import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.models.Note;
 import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.EvaluationRepository;
-import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.EvaluationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,8 +24,8 @@ import java.util.stream.Collectors;
 public class EvaluationServiceImpl implements EvaluationService {
 
     private final EvaluationRepository evaluationRepository;
-    private final UserRepository userRepository;
     private final EvaluationMapper evaluationMapper;
+    private final EntityHelper entityHelper;
 
     @Override
     public List<EvaluationDetailedResponseDto> getAllEvaluations() {
@@ -38,7 +37,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public EvaluationResponseDto getEvaluationById(Long id) {
-        Evaluation evaluation = getEvaluation(id);
+        Evaluation evaluation = entityHelper.getEvaluation(id);
         return evaluationMapper.convertEntityToResponseDto(evaluation);
     }
 
@@ -55,8 +54,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public EvaluationResponseDto createEvaluation(EvaluationRequestDto evaluationDto, Long teacherId) {
-        User user = userRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+        User user = entityHelper.getUser(teacherId);
         if (!user.isTeacher()) {
             throw new BadRequestException("Only teacher can create evaluations");
         }
@@ -68,7 +66,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public EvaluationResponseDto updateEvaluation(Long id, EvaluationRequestDto evaluationDto) {
-        Evaluation existingEvaluation = getEvaluation(id);
+        Evaluation existingEvaluation = entityHelper.getEvaluation(id);
         validateEvaluationRequest(evaluationDto);
         evaluationMapper.updateFromEntityDto(evaluationDto, existingEvaluation, existingEvaluation.getCreatedBy());
         Evaluation updatedEvaluation = evaluationRepository.save(existingEvaluation);
@@ -77,7 +75,7 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public void deleteEvaluation(Long id) {
-        Evaluation evaluation = getEvaluation(id);
+        Evaluation evaluation = entityHelper.getEvaluation(id);
         if (!evaluation.getNotes().isEmpty()) {
             throw new BadRequestException("Cannot delete: Evaluation has associated notes");
         }
@@ -86,19 +84,13 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public void finishEvaluation(Long id) {
-        Evaluation evaluation = getEvaluation(id);
+        Evaluation evaluation = entityHelper.getEvaluation(id);
         if (evaluation.isFinished()) {
             throw new BadRequestException("Evaluation has already been finished");
         }
         evaluation.setFinished(true);
         evaluation.setFinishedAt(LocalDateTime.now());
         evaluationRepository.save(evaluation);
-    }
-
-    private Evaluation getEvaluation(Long id) {
-        return evaluationRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Evaluation not found")
-        );
     }
 
     private void validateEvaluationRequest(EvaluationRequestDto evaluationRequestDto) {

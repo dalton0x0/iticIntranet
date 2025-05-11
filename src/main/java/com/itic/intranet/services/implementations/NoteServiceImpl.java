@@ -1,17 +1,15 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.dtos.NoteRequestDto;
 import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
-import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.NoteMapper;
 import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.models.Note;
 import com.itic.intranet.models.User;
-import com.itic.intranet.repositories.EvaluationRepository;
 import com.itic.intranet.repositories.NoteRepository;
-import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,9 +22,8 @@ import java.util.stream.Collectors;
 public class NoteServiceImpl implements NoteService {
 
     private final NoteRepository noteRepository;
-    private final UserRepository userRepository;
-    private final EvaluationRepository evaluationRepository;
     private final NoteMapper noteMapper;
+    private final EntityHelper entityHelper;
 
     @Override
     public List<NoteResponseDto> getAllNotes() {
@@ -38,21 +35,18 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public NoteResponseDto getNoteById(Long id) {
-        Note note = noteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
+        Note note = entityHelper.getNote(id);
         return noteMapper.convertEntityToResponseDto(note);
     }
 
     @Override
     public NoteResponseDto createNote(NoteRequestDto noteDto) {
         validateNoteRequest(noteDto);
-        User student = userRepository.findById(noteDto.getStudentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        User student = entityHelper.getUser(noteDto.getStudentId());
         if (!student.isStudent()) {
             throw new BadRequestException("Only students can have notes");
         }
-        Evaluation evaluation = evaluationRepository.findById(noteDto.getEvaluationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Evaluation not found"));
+        Evaluation evaluation = entityHelper.getEvaluation(noteDto.getEvaluationId());
         if (!isStudentInEvaluationClass(student, evaluation)) {
             throw new BadRequestException("Student is not in the evaluation class");
         }
@@ -66,12 +60,9 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public NoteResponseDto updateNote(Long id, NoteRequestDto noteDto) {
-        Note existingNote = noteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
-        User student = userRepository.findById(noteDto.getStudentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        Evaluation evaluation = evaluationRepository.findById(noteDto.getEvaluationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Evaluation not found"));
+        Note existingNote = entityHelper.getNote(id);
+        User student = entityHelper.getUser(noteDto.getStudentId());
+        Evaluation evaluation = entityHelper.getEvaluation(noteDto.getEvaluationId());
         validateNoteRequest(noteDto);
         noteMapper.updateEntityFromDto(noteDto, existingNote, student, evaluation);
         return noteMapper.convertEntityToResponseDto(noteRepository.save(existingNote));
@@ -79,8 +70,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public void deleteNote(Long id) {
-        Note note = noteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Note not found"));
+        Note note = entityHelper.getNote(id);
         noteRepository.delete(note);
     }
 
@@ -110,8 +100,7 @@ public class NoteServiceImpl implements NoteService {
         if (noteDto.getEvaluationId() == null) {
             throw new BadRequestException("Evaluation ID is required");
         }
-        Evaluation evaluation = evaluationRepository.findById(noteDto.getEvaluationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Evaluation not found"));
+        Evaluation evaluation = entityHelper.getEvaluation(noteDto.getEvaluationId());
         if (noteDto.getValue() < evaluation.getMinValue()) {
             throw new BadRequestException("Note cannot be less than " + evaluation.getMinValue());
         }

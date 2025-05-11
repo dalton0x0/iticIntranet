@@ -1,11 +1,10 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.UserMinimalDto;
 import com.itic.intranet.enums.RoleType;
-import com.itic.intranet.exceptions.ResourceNotFoundException;
 import com.itic.intranet.mappers.UserMapper;
 import com.itic.intranet.models.User;
-import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.ClassroomPropertyService;
 import lombok.RequiredArgsConstructor;
@@ -18,15 +17,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
 
-    private final ClassroomRepository classroomRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final EntityHelper entityHelper;
 
     @Override
     public List<UserMinimalDto> getTeachersOfClassroom(Long classroomId) {
-        if (!classroomRepository.existsById(classroomId)) {
-            throw new ResourceNotFoundException("Classroom not found");
-        }
+        entityHelper.getClassroom(classroomId);
         List<User> teachers = userRepository.findTeachersByClassroomId(classroomId);
         return teachers.stream()
                 .map(userMapper::convertEntityToUserMinimalDto)
@@ -35,9 +32,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
 
     @Override
     public List<UserMinimalDto> getStudentsOfClassroom(Long classroomId) {
-        if (!classroomRepository.existsById(classroomId)) {
-            throw new ResourceNotFoundException("Classroom not found");
-        }
+        entityHelper.getClassroom(classroomId);
         List<User> students = userRepository.findByClassroomIdAndRoleType(classroomId, RoleType.STUDENT);
         return students.stream()
                 .map(userMapper::convertEntityToUserMinimalDto)
