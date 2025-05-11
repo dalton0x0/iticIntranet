@@ -98,8 +98,15 @@ public class UserServiceImpl implements UserService {
         if (dto.getLastName() == null || dto.getLastName().trim().isEmpty()) {
             throw new BadRequestException("Last name is required");
         }
-        if (dto.getEmail() == null || !dto.getEmail().contains("@")) {
+        String regex = "^[\\w!#$%&amp;'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&amp;'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+        if (dto.getEmail() != null && !dto.getEmail().matches(regex)) {
             throw new BadRequestException("Invalid email format");
+        }
+        if (dto.getEmail() == null) {
+            throw new BadRequestException("Email cannot be null");
+        }
+        if (dto.getEmail().trim().isEmpty()) {
+            throw new BadRequestException("Email cannot be empty");
         }
         if (dto.getUsername() == null || dto.getUsername().trim().isEmpty()) {
             throw new BadRequestException("Username is required");
