@@ -5,12 +5,18 @@ import com.itic.intranet.dtos.UserRequestDto;
 import com.itic.intranet.dtos.UserResponseDto;
 import com.itic.intranet.models.Role;
 import com.itic.intranet.models.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
 @Component
 public class UserMapper {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public User convertDtoToEntity(UserRequestDto userDto, Role role) {
         return User.builder()
                 .id(userDto.getId())
@@ -18,7 +24,7 @@ public class UserMapper {
                 .lastName(userDto.getLastName().trim())
                 .email(userDto.getEmail().trim().toLowerCase())
                 .username(userDto.getUsername().trim())
-                .password(userDto.getPassword())
+                .password(passwordEncoder.encode(userDto.getPassword()))
                 .role(role)
                 .active(true)
                 .taughtClassrooms(new ArrayList<>())
@@ -43,7 +49,11 @@ public class UserMapper {
         user.setLastName(userDto.getLastName().trim());
         user.setEmail(userDto.getEmail().trim().toLowerCase());
         user.setUsername(userDto.getUsername().trim());
-        user.setPassword(userDto.getPassword());
+        if (user.getPassword() != null && !user.getPassword().equals(userDto.getPassword())) {
+            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        } else {
+            user.setPassword(user.getPassword());
+        }
         user.setRole(role);
     }
 
