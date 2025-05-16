@@ -17,7 +17,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         List<UserResponseDto> users = userService.getAllUsers();
         return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
@@ -40,7 +40,7 @@ public class UserController {
         return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto userDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
     }

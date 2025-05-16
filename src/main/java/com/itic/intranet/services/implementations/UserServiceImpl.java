@@ -1,15 +1,20 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.UserRequestDto;
 import com.itic.intranet.dtos.UserResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.UserMapper;
 import com.itic.intranet.models.Role;
 import com.itic.intranet.models.User;
 import com.itic.intranet.repositories.UserRepository;
+import com.itic.intranet.security.CustomPasswordEncoder;
 import com.itic.intranet.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,11 +23,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final EntityHelper entityHelper;
+    private final CustomPasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponseDto> getAllUsers() {
@@ -91,6 +97,13 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User account does not exists !")
+        );
+    }
+
     private void validateUserRequest(UserRequestDto dto) {
         if (dto.getFirstName() == null || dto.getFirstName().trim().isEmpty()) {
             throw new BadRequestException("First name is required");
@@ -136,6 +149,10 @@ public class UserServiceImpl implements UserService {
         Optional<User> existingUsernameUser = userRepository.findByUsername(dto.getUsername());
         if (existingUsernameUser.isPresent() && !existingUsernameUser.get().getId().equals(userId)) {
             throw new BadRequestException("This new username is already exists");
+        }
+        User user = entityHelper.getUser(userId);
+        if (user.getPassword() != null && !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
     }
 }

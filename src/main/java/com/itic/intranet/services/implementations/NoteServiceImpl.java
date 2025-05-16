@@ -1,10 +1,10 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.dtos.NoteRequestDto;
 import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.NoteMapper;
 import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.models.Note;
