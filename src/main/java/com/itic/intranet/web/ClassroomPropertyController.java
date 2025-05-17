@@ -1,5 +1,6 @@
 package com.itic.intranet.web;
 
+import com.itic.intranet.dtos.EvaluationResponseDto;
 import com.itic.intranet.dtos.UserMinimalDto;
 import com.itic.intranet.services.ClassroomPropertyService;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,11 @@ public class ClassroomPropertyController {
     public ResponseEntity<List<UserMinimalDto>> getStudentsOfClassroom(@PathVariable Long classroomId) {
         List<UserMinimalDto> students = classroomPropertyService.getStudentsOfClassroom(classroomId);
         return students.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/evaluations")
+    public ResponseEntity<List<EvaluationResponseDto>> getEvaluationsOfClassroom(@PathVariable Long classroomId) {
+        List<EvaluationResponseDto> evaluations = classroomPropertyService.getEvaluationsOfClassroom(classroomId);
+        return evaluations.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(evaluations);
     }
 }
