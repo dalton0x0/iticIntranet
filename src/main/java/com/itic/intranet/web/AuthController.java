@@ -1,7 +1,7 @@
 package com.itic.intranet.web;
 
-import com.itic.intranet.dtos.UserLoginRequestDto;
-import com.itic.intranet.dtos.UserLoginResponseDto;
+import com.itic.intranet.dtos.LoginRequestDto;
+import com.itic.intranet.dtos.LoginResponseDto;
 import com.itic.intranet.services.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResponseDto> login(@RequestBody UserLoginRequestDto userLoginRequestDto ) {
-        return ResponseEntity.ok(authService.login(userLoginRequestDto));
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
+        return authService.login(loginRequestDto);
     }
 }
