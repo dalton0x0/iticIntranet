@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService{
     public ResponseEntity<LoginResponseDto> login(LoginRequestDto loginRequestDto) {
 
         var existingUser = userRepository.findByUsername(loginRequestDto.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password"));
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

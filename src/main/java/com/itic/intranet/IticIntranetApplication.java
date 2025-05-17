@@ -15,6 +15,7 @@ public class IticIntranetApplication {
         System.setProperty("MYSQL_PASSWORD", dotenv.get("MYSQL_PASSWORD"));
         System.setProperty("MONGODB_URI", dotenv.get("MONGODB_URI"));
         System.setProperty("MONGODB_DATABASE", dotenv.get("MONGODB_DATABASE"));
+        System.setProperty("JWT_TOKEN", dotenv.get("JWT_TOKEN"));
 
         SpringApplication.run(IticIntranetApplication.class, args);
     }
