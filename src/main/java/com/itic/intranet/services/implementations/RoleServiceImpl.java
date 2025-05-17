@@ -1,9 +1,9 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.RoleRequestDto;
 import com.itic.intranet.dtos.RoleResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.RoleMapper;
 import com.itic.intranet.models.Role;
 import com.itic.intranet.repositories.RoleRepository;

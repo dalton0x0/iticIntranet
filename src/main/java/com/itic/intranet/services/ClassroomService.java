@@ -2,8 +2,6 @@ package com.itic.intranet.services;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
 import com.itic.intranet.dtos.ClassroomResponseDto;
-import com.itic.intranet.dtos.UserMinimalDto;
-import com.itic.intranet.models.Classroom;
 
 import java.util.List;
 

@@ -1,11 +1,11 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.EvaluationDetailedResponseDto;
 import com.itic.intranet.dtos.EvaluationRequestDto;
 import com.itic.intranet.dtos.EvaluationResponseDto;
 import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.EvaluationMapper;
 import com.itic.intranet.models.Evaluation;
 import com.itic.intranet.models.Note;

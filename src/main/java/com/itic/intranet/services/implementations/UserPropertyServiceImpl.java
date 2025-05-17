@@ -1,8 +1,8 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.models.Classroom;
 import com.itic.intranet.models.Role;
 import com.itic.intranet.models.User;
