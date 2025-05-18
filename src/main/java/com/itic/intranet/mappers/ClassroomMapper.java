@@ -2,7 +2,7 @@ package com.itic.intranet.mappers;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
 import com.itic.intranet.dtos.ClassroomResponseDto;
-import com.itic.intranet.models.Classroom;
+import com.itic.intranet.models.mysql.Classroom;
 import org.springframework.stereotype.Component;
 
 @Component

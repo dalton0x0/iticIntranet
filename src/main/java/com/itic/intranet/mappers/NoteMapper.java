@@ -3,9 +3,9 @@ package com.itic.intranet.mappers;
 import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.dtos.NoteRequestDto;
 import com.itic.intranet.dtos.NoteResponseDto;
-import com.itic.intranet.models.Evaluation;
-import com.itic.intranet.models.Note;
-import com.itic.intranet.models.User;
+import com.itic.intranet.models.mysql.Evaluation;
+import com.itic.intranet.models.mysql.Note;
+import com.itic.intranet.models.mysql.User;
 import org.springframework.stereotype.Component;
 
 @Component

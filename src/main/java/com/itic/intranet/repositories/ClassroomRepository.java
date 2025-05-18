@@ -1,6 +1,6 @@
 package com.itic.intranet.repositories;
 
-import com.itic.intranet.models.Classroom;
+import com.itic.intranet.models.mysql.Classroom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

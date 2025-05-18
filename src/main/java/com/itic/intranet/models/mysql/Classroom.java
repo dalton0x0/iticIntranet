@@ -1,4 +1,4 @@
-package com.itic.intranet.models;
+package com.itic.intranet.models.mysql;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

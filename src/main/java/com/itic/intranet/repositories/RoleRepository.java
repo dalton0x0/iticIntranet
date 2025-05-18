@@ -1,7 +1,7 @@
 package com.itic.intranet.repositories;
 
 import com.itic.intranet.enums.RoleType;
-import com.itic.intranet.models.Role;
+import com.itic.intranet.models.mysql.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

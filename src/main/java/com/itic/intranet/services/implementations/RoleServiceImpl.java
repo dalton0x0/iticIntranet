@@ -5,7 +5,7 @@ import com.itic.intranet.dtos.RoleResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.RoleMapper;
-import com.itic.intranet.models.Role;
+import com.itic.intranet.models.mysql.Role;
 import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.RoleService;

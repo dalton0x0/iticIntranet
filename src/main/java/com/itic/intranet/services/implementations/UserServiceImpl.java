@@ -5,10 +5,11 @@ import com.itic.intranet.dtos.UserResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.UserMapper;
-import com.itic.intranet.models.Role;
-import com.itic.intranet.models.User;
+import com.itic.intranet.models.mysql.Role;
+import com.itic.intranet.models.mysql.User;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.security.CustomPasswordEncoder;
+import com.itic.intranet.services.LogService;
 import com.itic.intranet.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,8 +18,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,26 +29,32 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserMapper userMapper;
     private final EntityHelper entityHelper;
     private final CustomPasswordEncoder passwordEncoder;
+    private final LogService logService;
 
     @Override
     public List<UserResponseDto> getAllUsers() {
-        return userRepository.findAll()
+        List<UserResponseDto> allUsers = userRepository.findAll()
                 .stream()
                 .map(userMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info("SYSTEM", "GET_ALL_USERS", "Retrieved all users", Map.of("userCount", allUsers.size()));
+        return allUsers;
     }
 
     @Override
     public List<UserResponseDto> getAllActiveUsers() {
-        return userRepository.findByActive(true)
+        List<UserResponseDto> allActiveUsers = userRepository.findByActive(true)
                 .stream()
                 .map(userMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info("SYSTEM", "GET_ALL_ACTIVE_USERS", "Retrieved all active users", Map.of("userCount", allActiveUsers.size()));
+        return allActiveUsers;
     }
 
     @Override
     public UserResponseDto getUserById(Long id) {
         User user = entityHelper.getUser(id);
+        logService.info("SYSTEM", "GET_USER", "Retrieved user", Map.of("userId", user.getId()));
         return userMapper.convertEntityToResponseDto(user);
     }
 
@@ -56,10 +63,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new BadRequestException("Search keyword cannot be empty");
         }
-        return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(keyword, keyword)
+        List<UserResponseDto> results = userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(keyword, keyword)
                 .stream()
                 .map(userMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info("SYSTEM", "SEARCH_USER", "Searched users", Map.of("keyword", keyword, "resultCount", results.size()));
+        return results;
     }
 
     @Override
@@ -69,6 +78,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Role role = entityHelper.getRoleRoleType(userDto.getRoleType());
         User user = userMapper.convertDtoToEntity(userDto, role);
         User savedUser = userRepository.save(user);
+        logService.info("SYSTEM", "CREATE_USER", "Created new user", Map.of("userId", savedUser.getId(), "role", role.getRoleType()));
         return userMapper.convertEntityToResponseDto(savedUser);
     }
 
@@ -80,6 +90,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         checkUniqueConstraintsForUpdate(id, userDto);
         userMapper.updateEntityFromDto(userDto, existingUser, role);
         User updatedUser = userRepository.save(existingUser);
+        logService.info("SYSTEM", "UPDATE_USER", "Updated user", Map.of("userId", updatedUser.getId(), "role", role.getRoleType()));
         return userMapper.convertEntityToResponseDto(updatedUser);
     }
 
@@ -88,12 +99,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User existingUser = entityHelper.getActiveUser(id);
         existingUser.setActive(false);
         userRepository.save(existingUser);
+        logService.info("SYSTEM", "DEACTIVATE_USER", "Deactivated user", Map.of("userId", id));
     }
 
     @Override
     public void permanentlyDeleteUser(Long id) {
         User user = entityHelper.getUser(id);
         userRepository.delete(user);
+        logService.info("SYSTEM", "DELETE_USER", "Deleted user", Map.of("userId", id));
     }
 
     @Override

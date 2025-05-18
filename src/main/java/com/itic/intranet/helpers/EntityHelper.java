@@ -2,7 +2,7 @@ package com.itic.intranet.helpers;
 
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.ResourceNotFoundException;
-import com.itic.intranet.models.*;
+import com.itic.intranet.models.mysql.*;
 import com.itic.intranet.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

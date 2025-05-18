@@ -6,7 +6,7 @@ import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.ClassroomMapper;
-import com.itic.intranet.models.Classroom;
+import com.itic.intranet.models.mysql.Classroom;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.ClassroomService;

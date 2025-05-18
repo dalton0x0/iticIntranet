@@ -1,4 +1,4 @@
-package com.itic.intranet.models;
+package com.itic.intranet.models.mysql;
 
 import com.itic.intranet.enums.RoleType;
 import jakarta.persistence.*;

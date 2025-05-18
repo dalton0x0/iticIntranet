@@ -3,9 +3,9 @@ package com.itic.intranet.mappers;
 import com.itic.intranet.dtos.EvaluationDetailedResponseDto;
 import com.itic.intranet.dtos.EvaluationRequestDto;
 import com.itic.intranet.dtos.EvaluationResponseDto;
-import com.itic.intranet.models.Classroom;
-import com.itic.intranet.models.Evaluation;
-import com.itic.intranet.models.User;
+import com.itic.intranet.models.mysql.Classroom;
+import com.itic.intranet.models.mysql.Evaluation;
+import com.itic.intranet.models.mysql.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

@@ -2,8 +2,8 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
-import com.itic.intranet.models.Classroom;
-import com.itic.intranet.models.Evaluation;
+import com.itic.intranet.models.mysql.Classroom;
+import com.itic.intranet.models.mysql.Evaluation;
 import com.itic.intranet.repositories.EvaluationRepository;
 import com.itic.intranet.services.EvaluationPropertyService;
 import lombok.RequiredArgsConstructor;

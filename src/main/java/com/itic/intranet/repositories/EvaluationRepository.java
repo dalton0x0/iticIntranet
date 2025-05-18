@@ -1,6 +1,6 @@
 package com.itic.intranet.repositories;
 
-import com.itic.intranet.models.Evaluation;
+import com.itic.intranet.models.mysql.Evaluation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
