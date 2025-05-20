@@ -36,7 +36,15 @@ public class LogServiceImpl implements LogService {
     public List<LogDto> getAllLogs() {
         return logRepository.findAll()
                 .stream()
-                .map(LogDto::from)
+                .map(LogDto::convertToDto)
+                .toList();
+    }
+
+    @Override
+    public List<LogDto> getLogsByActor(String actor) {
+        return logRepository.findByActor(actor)
+                .stream()
+                .map(LogDto::convertToDto)
                 .toList();
     }
 

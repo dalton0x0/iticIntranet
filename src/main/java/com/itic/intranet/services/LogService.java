@@ -10,4 +10,5 @@ public interface LogService {
     void warn(String actor, String action, String message, Map<String, Object> details);
     void error(String actor, String action, String message, Map<String, Object> details);
     List<LogDto> getAllLogs();
+    List<LogDto> getLogsByActor(String actor);
 }

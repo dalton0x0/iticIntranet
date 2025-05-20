@@ -29,22 +29,24 @@ public class SecurityConfig {
                         "/api/v18/auth/**"
                 ).permitAll())
                 .authorizeHttpRequests(request -> request.requestMatchers(
-                       "/api/v18/users/**",
-                        "/api/v18/roles/**",
-                        "api/v18/classrooms/**",
-                        "api/v18/notes/**"
-                ).hasAuthority("ADMIN"))
-                .authorizeHttpRequests(request -> request.requestMatchers(
-                        "api/v18/evaluations/**",
-                        "api/v18/notes/**"
-                ).hasAuthority("TEACHER"))
-                .authorizeHttpRequests(request -> request.requestMatchers(
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/swagger-resources/**",
                         "/webjars/**"
-                ).permitAll())
+                ).hasAuthority("ADMIN"))
+                .authorizeHttpRequests(request -> request.requestMatchers(
+                        "/api/v18/users/**",
+                        "/api/v18/roles/**",
+                        "/api/v18/classrooms/**",
+                        "/api/v18/evaluations/**",
+                        "/api/v18/notes/**",
+                        "/api/v18/logs/**"
+                ).hasAuthority("ADMIN"))
+                .authorizeHttpRequests(request -> request.requestMatchers(
+                        "/api/v18/evaluations/**",
+                        "/api/v18/notes/**"
+                ).hasAuthority("TEACHER"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

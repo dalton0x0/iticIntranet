@@ -123,24 +123,39 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (dto.getLastName() == null || dto.getLastName().trim().isEmpty()) {
             throw new BadRequestException("Last name is required");
         }
-        String regex = "^[\\w!#$%&amp;'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&amp;'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
-        if (dto.getEmail() != null && !dto.getEmail().matches(regex)) {
+        if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
+            throw new BadRequestException("Email is required");
+        }
+        String regexEmail = "^[\\w!#$%&amp;'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&amp;'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+        if (!dto.getEmail().matches(regexEmail)) {
             throw new BadRequestException("Invalid email format");
-        }
-        if (dto.getEmail() == null) {
-            throw new BadRequestException("Email cannot be null");
-        }
-        if (dto.getEmail().trim().isEmpty()) {
-            throw new BadRequestException("Email cannot be empty");
         }
         if (dto.getUsername() == null || dto.getUsername().trim().isEmpty()) {
             throw new BadRequestException("Username is required");
         }
-        if (dto.getPassword() == null || dto.getPassword().length() < 8) {
+        if (dto.getPassword() == null || dto.getPassword().trim().isEmpty()) {
+            throw new BadRequestException("Password is required");
+        }
+        if (dto.getPassword().length() < 8) {
             throw new BadRequestException("Password must be at least 8 characters");
         }
-        if (dto.getRoleType() == null) {
-            throw new BadRequestException("Role type is required");
+
+        String regexPasswordUppercaseLetter = ".*[A-Z].*";
+        String regexPasswordLowercaseLetter = ".*[a-z].*";
+        String regexPasswordDigit = ".*[0-9].*";
+        String regexPasswordSpecialCharacter = ".*[#?!@$%^&*-].*";
+
+        if (!dto.getPassword().matches(regexPasswordUppercaseLetter)) {
+            throw new BadRequestException("Password must contain at least one uppercase letter");
+        }
+        if (!dto.getPassword().matches(regexPasswordLowercaseLetter)) {
+            throw new BadRequestException("Password must contain at least one lowercase letter");
+        }
+        if (!dto.getPassword().matches(regexPasswordDigit)) {
+            throw new BadRequestException("Password must contain at least one digit");
+        }
+        if (!dto.getPassword().matches(regexPasswordSpecialCharacter)) {
+            throw new BadRequestException("Password must contain at least one special character");
         }
     }
 

@@ -22,7 +22,7 @@ public class LogDto {
     private Map<String, Object> details;
     private LocalDateTime timestamp;
 
-    public static LogDto from(Log log) {
+    public static LogDto convertToDto(Log log) {
         return LogDto.builder()
                 .id(log.getId())
                 .level(log.getLevel())
