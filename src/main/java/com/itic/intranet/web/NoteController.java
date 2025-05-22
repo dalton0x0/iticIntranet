@@ -1,6 +1,5 @@
 package com.itic.intranet.web;
 
-import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.dtos.NoteRequestDto;
 import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.services.NoteService;
@@ -31,7 +30,7 @@ public class NoteController {
 
     @PostMapping
     public ResponseEntity<NoteResponseDto> createNote(@RequestBody NoteRequestDto noteDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(noteService.createNote(noteDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(noteService.addNote(noteDto));
     }
 
     @PutMapping("/{id}")
@@ -43,11 +42,5 @@ public class NoteController {
     public ResponseEntity<Void> deleteNote(@PathVariable Long id) {
         noteService.deleteNote(id);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/evaluation/{evaluationId}")
-    public ResponseEntity<List<NoteResponseDto>> getNotesByEvaluation(@PathVariable Long evaluationId) {
-        List<NoteResponseDto> notes = noteService.getNotesByEvaluation(evaluationId);
-        return notes.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(notes);
     }
 }

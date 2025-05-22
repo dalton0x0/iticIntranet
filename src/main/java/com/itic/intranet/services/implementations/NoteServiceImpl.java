@@ -1,6 +1,5 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.dtos.NoteRequestDto;
 import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
@@ -40,19 +39,11 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public NoteResponseDto createNote(NoteRequestDto noteDto) {
+    public NoteResponseDto addNote(NoteRequestDto noteDto) {
         validateNoteRequest(noteDto);
-        User student = entityHelper.getUser(noteDto.getStudentId());
-        if (!student.isStudent()) {
-            throw new BadRequestException("Only students can have notes");
-        }
-        Evaluation evaluation = entityHelper.getEvaluation(noteDto.getEvaluationId());
-        if (!isStudentInEvaluationClass(student, evaluation)) {
-            throw new BadRequestException("Student is not in the evaluation class");
-        }
-        if (evaluation.getNotes().stream().anyMatch(note -> note.getStudent().getId().equals(student.getId()))) {
-            throw new BadRequestException("The student already has a note for this evaluation");
-        }
+        User student = ensureStudent(noteDto);
+        Evaluation evaluation = getEvaluation(noteDto, student);
+        checkIfAlreadyNoted(evaluation, student);
         Note note = noteMapper.convertDtoToEntity(noteDto, student, evaluation);
         Note savedNote = noteRepository.save(note);
         return noteMapper.convertEntityToResponseDto(savedNote);
@@ -72,14 +63,6 @@ public class NoteServiceImpl implements NoteService {
     public void deleteNote(Long id) {
         Note note = entityHelper.getNote(id);
         noteRepository.delete(note);
-    }
-
-    @Override
-    public List<NoteResponseDto> getNotesByEvaluation(Long evaluationId) {
-        List<Note> notes = noteRepository.findByEvaluationId(evaluationId);
-        return notes.stream()
-                .map(noteMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
     }
 
     private void validateNoteRequest(NoteRequestDto noteDto) {
@@ -107,5 +90,27 @@ public class NoteServiceImpl implements NoteService {
     private boolean isStudentInEvaluationClass(User student, Evaluation evaluation) {
         if (student.getClassroom() == null) return false;
         return evaluation.getClassrooms().contains(student.getClassroom());
+    }
+
+    private User ensureStudent(NoteRequestDto noteDto) {
+        User student = entityHelper.getUser(noteDto.getStudentId());
+        if (!student.isStudent()) {
+            throw new BadRequestException("Only students can have notes");
+        }
+        return student;
+    }
+
+    private Evaluation getEvaluation(NoteRequestDto noteDto, User student) {
+        Evaluation evaluation = entityHelper.getEvaluation(noteDto.getEvaluationId());
+        if (!isStudentInEvaluationClass(student, evaluation)) {
+            throw new BadRequestException("Student is not in the evaluation class");
+        }
+        return evaluation;
+    }
+
+    private void checkIfAlreadyNoted(Evaluation evaluation, User student) {
+        if (evaluation.getNotes().stream().anyMatch(note -> note.getStudent().getId().equals(student.getId()))) {
+            throw new BadRequestException("The student already has a note for this evaluation");
+        }
     }
 }
