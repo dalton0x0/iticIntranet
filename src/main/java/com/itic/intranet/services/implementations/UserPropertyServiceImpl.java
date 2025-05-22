@@ -1,21 +1,30 @@
 package com.itic.intranet.services.implementations;
 
+import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
+import com.itic.intranet.mappers.NoteMapper;
 import com.itic.intranet.models.mysql.Classroom;
+import com.itic.intranet.models.mysql.Note;
 import com.itic.intranet.models.mysql.Role;
 import com.itic.intranet.models.mysql.User;
+import com.itic.intranet.repositories.NoteRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.UserPropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserPropertyServiceImpl implements UserPropertyService {
 
     private final UserRepository userRepository;
+    private final NoteRepository noteRepository;
+    private final NoteMapper noteMapper;
     private final EntityHelper entityHelper;
 
     @Override
@@ -89,5 +98,13 @@ public class UserPropertyServiceImpl implements UserPropertyService {
             user.setClassroom(null);
         }
         userRepository.save(user);
+    }
+
+    @Override
+    public List<NoteMinimalDto> getStudentNotes(Long studentId) {
+        List<Note> notes = noteRepository.findByStudentId(studentId);
+        return notes.stream()
+                .map(noteMapper::convertEntityToUserMinimalDto)
+                .collect(Collectors.toList());
     }
 }

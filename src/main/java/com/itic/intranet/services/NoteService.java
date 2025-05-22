@@ -13,5 +13,4 @@ public interface NoteService {
     NoteResponseDto updateNote(Long id, NoteRequestDto noteDto);
     void deleteNote(Long id);
     List<NoteResponseDto> getNotesByEvaluation(Long evaluationId);
-    List<NoteMinimalDto> getNotesByStudent(Long studentId);
 }

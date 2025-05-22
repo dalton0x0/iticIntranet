@@ -50,10 +50,4 @@ public class NoteController {
         List<NoteResponseDto> notes = noteService.getNotesByEvaluation(evaluationId);
         return notes.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(notes);
     }
-
-    @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<NoteMinimalDto>> getNotesByStudent(@PathVariable Long studentId) {
-        List<NoteMinimalDto> notes = noteService.getNotesByStudent(studentId);
-        return notes.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(notes);
-    }
 }

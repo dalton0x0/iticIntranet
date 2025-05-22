@@ -1,6 +1,9 @@
 package com.itic.intranet.services;
 
+import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.enums.RoleType;
+
+import java.util.List;
 
 public interface UserPropertyService {
 
@@ -10,4 +13,6 @@ public interface UserPropertyService {
 
     void assignClassroomToUser(Long userId, Long classroomId);
     void removeClassroomFromUser(Long userId, Long classroomId);
+
+    List<NoteMinimalDto> getStudentNotes(Long studentId);
 }

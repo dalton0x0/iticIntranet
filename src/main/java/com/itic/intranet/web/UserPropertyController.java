@@ -1,10 +1,13 @@
 package com.itic.intranet.web;
 
+import com.itic.intranet.dtos.NoteMinimalDto;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.services.UserPropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v18/users/{userId}")
@@ -40,5 +43,11 @@ public class UserPropertyController {
     public ResponseEntity<Void> removeUserToClassroom(@PathVariable Long userId, @PathVariable Long classroomId) {
         userPropertyService.removeClassroomFromUser(userId, classroomId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/notes")
+    public ResponseEntity<List<NoteMinimalDto>> getNotesByStudent(@PathVariable Long userId) {
+        List<NoteMinimalDto> notes = userPropertyService.getStudentNotes(userId);
+        return notes.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(notes);
     }
 }

@@ -50,7 +50,7 @@ public class NoteServiceImpl implements NoteService {
         if (!isStudentInEvaluationClass(student, evaluation)) {
             throw new BadRequestException("Student is not in the evaluation class");
         }
-        if (noteDto.getEvaluationId().equals(evaluation.getId())) {
+        if (evaluation.getNotes().stream().anyMatch(note -> note.getStudent().getId().equals(student.getId()))) {
             throw new BadRequestException("The student already has a note for this evaluation");
         }
         Note note = noteMapper.convertDtoToEntity(noteDto, student, evaluation);
@@ -79,14 +79,6 @@ public class NoteServiceImpl implements NoteService {
         List<Note> notes = noteRepository.findByEvaluationId(evaluationId);
         return notes.stream()
                 .map(noteMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<NoteMinimalDto> getNotesByStudent(Long studentId) {
-        List<Note> notes = noteRepository.findByStudentId(studentId);
-        return notes.stream()
-                .map(noteMapper::convertEntityToUserMinimalDto)
                 .collect(Collectors.toList());
     }
 
