@@ -6,7 +6,7 @@ import com.itic.intranet.dtos.UserMinimalDto;
 import java.util.List;
 
 public interface ClassroomPropertyService {
-    List<UserMinimalDto> getTeachersOfClassroom(Long classroomId);
-    List<UserMinimalDto> getStudentsOfClassroom(Long classroomId);
-    List<EvaluationResponseDto> getEvaluationsOfClassroom(Long classroomId);
+    List<UserMinimalDto> getClassroomTeachers(Long classroomId);
+    List<UserMinimalDto> getClassroomStudents(Long classroomId);
+    List<EvaluationResponseDto> getClassroomEvaluations(Long classroomId);
 }

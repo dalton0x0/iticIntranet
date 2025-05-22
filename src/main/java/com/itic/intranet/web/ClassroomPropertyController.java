@@ -21,19 +21,19 @@ public class ClassroomPropertyController {
 
     @GetMapping("/teachers")
     public ResponseEntity<List<UserMinimalDto>> getTeachersOfClassroom(@PathVariable Long classroomId) {
-        List<UserMinimalDto> teachers = classroomPropertyService.getTeachersOfClassroom(classroomId);
+        List<UserMinimalDto> teachers = classroomPropertyService.getClassroomTeachers(classroomId);
         return teachers.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(teachers);
     }
 
     @GetMapping("/students")
     public ResponseEntity<List<UserMinimalDto>> getStudentsOfClassroom(@PathVariable Long classroomId) {
-        List<UserMinimalDto> students = classroomPropertyService.getStudentsOfClassroom(classroomId);
+        List<UserMinimalDto> students = classroomPropertyService.getClassroomStudents(classroomId);
         return students.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(students);
     }
 
     @GetMapping("/evaluations")
     public ResponseEntity<List<EvaluationResponseDto>> getEvaluationsOfClassroom(@PathVariable Long classroomId) {
-        List<EvaluationResponseDto> evaluations = classroomPropertyService.getEvaluationsOfClassroom(classroomId);
+        List<EvaluationResponseDto> evaluations = classroomPropertyService.getClassroomEvaluations(classroomId);
         return evaluations.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(evaluations);
     }
 }

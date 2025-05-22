@@ -28,7 +28,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
     private final EntityHelper entityHelper;
 
     @Override
-    public List<UserMinimalDto> getTeachersOfClassroom(Long classroomId) {
+    public List<UserMinimalDto> getClassroomTeachers(Long classroomId) {
         entityHelper.getClassroom(classroomId);
         List<User> teachers = userRepository.findTeachersByClassroomId(classroomId);
         return teachers.stream()
@@ -37,7 +37,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
     }
 
     @Override
-    public List<UserMinimalDto> getStudentsOfClassroom(Long classroomId) {
+    public List<UserMinimalDto> getClassroomStudents(Long classroomId) {
         entityHelper.getClassroom(classroomId);
         List<User> students = userRepository.findByClassroomIdAndRoleType(classroomId, RoleType.STUDENT);
         return students.stream()
@@ -46,7 +46,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
     }
 
     @Override
-    public List<EvaluationResponseDto> getEvaluationsOfClassroom(Long classroomId) {
+    public List<EvaluationResponseDto> getClassroomEvaluations(Long classroomId) {
         entityHelper.getClassroom(classroomId);
         List<Evaluation> evaluations = evaluationRepository.findEvaluationByClassroomsId(classroomId);
         return evaluations.stream()
