@@ -20,7 +20,7 @@ public class RolePropertyController {
 
     @GetMapping("/users")
     public ResponseEntity<List<UserResponseDto>> getUsersOfRole(@PathVariable Long roleId) {
-        List<UserResponseDto> users = rolePropertyService.getUsersOfRole(roleId);
+        List<UserResponseDto> users = rolePropertyService.getRoleUsers(roleId);
         return users.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(users);
     }
 }

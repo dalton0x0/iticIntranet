@@ -5,5 +5,5 @@ import com.itic.intranet.dtos.UserResponseDto;
 import java.util.List;
 
 public interface RolePropertyService {
-    List<UserResponseDto> getUsersOfRole(Long roleId);
+    List<UserResponseDto> getRoleUsers(Long roleId);
 }

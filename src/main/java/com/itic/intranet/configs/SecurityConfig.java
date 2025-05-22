@@ -26,7 +26,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(request -> request.requestMatchers(
-                        "/api/v18/auth/**"
+                        "/api/**"
                 ).permitAll())
                 .authorizeHttpRequests(request -> request.requestMatchers(
                         "/swagger-ui.html",

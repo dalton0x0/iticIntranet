@@ -21,7 +21,7 @@ public class RolePropertyServiceImpl implements RolePropertyService {
     private final EntityHelper entityHelper;
 
     @Override
-    public List<UserResponseDto> getUsersOfRole(Long roleId) {
+    public List<UserResponseDto> getRoleUsers(Long roleId) {
         entityHelper.getRole(roleId);
         List<User> users = userRepository.findByRole_Id(roleId);
         return users.stream()
