@@ -1,7 +1,7 @@
 package com.itic.intranet.services.implementations;
 
-import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.dtos.UserResponseDto;
+import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.UserMapper;
 import com.itic.intranet.models.mysql.User;
 import com.itic.intranet.repositories.UserRepository;
