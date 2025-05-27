@@ -18,7 +18,7 @@ services:
     image: mongo:6
     container_name: mongo-db
     ports:
-      - "27027:27017"
+      - "27017:27017"
     networks:
       - backend
 
