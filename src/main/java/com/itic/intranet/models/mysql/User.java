@@ -56,6 +56,10 @@ public class User implements UserDetails {
     public boolean isStudent() {
         return this.role.getRoleType() == RoleType.STUDENT;
     }
+    
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

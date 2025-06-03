@@ -37,7 +37,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .stream()
                 .map(userMapper::convertEntityToResponseDto)
                 .toList();
-        logService.info("SYSTEM", "GET_ALL_USERS", "Retrieved all users", Map.of("userCount", allUsers.size()));
+        logService.info(
+                "SYSTEM",
+                "GET_ALL_USERS",
+                "Getting all users",
+                Map.of(
+                        "resultCount", allUsers.size()
+                )
+        );
         return allUsers;
     }
 
@@ -47,14 +54,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .stream()
                 .map(userMapper::convertEntityToResponseDto)
                 .toList();
-        logService.info("SYSTEM", "GET_ALL_ACTIVE_USERS", "Retrieved all active users", Map.of("userCount", allActiveUsers.size()));
+        logService.info(
+                "SYSTEM",
+                "GET_ALL_ACTIVE_USERS",
+                "Getting all active users",
+                Map.of(
+                        "resultCount", allActiveUsers.size()
+                )
+        );
         return allActiveUsers;
     }
 
     @Override
     public UserResponseDto getUserById(Long id) {
         User user = entityHelper.getUser(id);
-        logService.info("SYSTEM", "GET_USER", "Retrieved user", Map.of("userId", user.getId()));
+        logService.info(
+                "SYSTEM",
+                "GET_USER",
+                "Getting user by ID",
+                Map.of(
+                        "userId", user.getId(),
+                        "resultFound", user.getFullName()
+                )
+        );
         return userMapper.convertEntityToResponseDto(user);
     }
 
@@ -67,7 +89,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .stream()
                 .map(userMapper::convertEntityToResponseDto)
                 .toList();
-        logService.info("SYSTEM", "SEARCH_USER", "Searched users", Map.of("keyword", keyword, "resultCount", results.size()));
+        logService.info(
+                "SYSTEM",
+                "SEARCH_USER",
+                "Searching users",
+                Map.of(
+                        "keyword", keyword,
+                        "resultCount", results.size()
+                )
+        );
         return results;
     }
 
@@ -78,7 +108,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Role role = entityHelper.getRoleRoleType(userDto.getRoleType());
         User user = userMapper.convertDtoToEntity(userDto, role);
         User savedUser = userRepository.save(user);
-        logService.info("SYSTEM", "CREATE_USER", "Created new user", Map.of("userId", savedUser.getId(), "role", role.getRoleType()));
+        logService.info(
+                "SYSTEM",
+                "CREATE_USER",
+                "Creating new user",
+                Map.of(
+                        "userId", savedUser.getId(),
+                        "userCreated", savedUser.getFullName(),
+                        "role", role.getRoleType()
+                )
+        );
         return userMapper.convertEntityToResponseDto(savedUser);
     }
 
@@ -90,7 +129,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         checkUniqueConstraintsForUpdate(id, userDto);
         userMapper.updateEntityFromDto(userDto, existingUser, role);
         User updatedUser = userRepository.save(existingUser);
-        logService.info("SYSTEM", "UPDATE_USER", "Updated user", Map.of("userId", updatedUser.getId(), "role", role.getRoleType()));
+        logService.info(
+                "SYSTEM",
+                "UPDATE_USER",
+                "Updating existing user",
+                Map.of(
+                        "userId", updatedUser.getId(),
+                        "userUpdated", updatedUser.getFullName(),
+                        "role", role.getRoleType()
+                )
+        );
         return userMapper.convertEntityToResponseDto(updatedUser);
     }
 
@@ -99,14 +147,32 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User existingUser = entityHelper.getActiveUser(id);
         existingUser.setActive(false);
         userRepository.save(existingUser);
-        logService.info("SYSTEM", "DEACTIVATE_USER", "Deactivated user", Map.of("userId", id));
+        logService.info(
+                "SYSTEM",
+                "DEACTIVATE_USER",
+                "Deactivating user",
+                Map.of(
+                        "userId", existingUser.getId(),
+                        "userDeactivated", existingUser.getFullName(),
+                        "role", existingUser.getRole().getRoleType()
+                )
+        );
     }
 
     @Override
     public void permanentlyDeleteUser(Long id) {
         User user = entityHelper.getUser(id);
         userRepository.delete(user);
-        logService.info("SYSTEM", "DELETE_USER", "Deleted user", Map.of("userId", id));
+        logService.info(
+                "SYSTEM",
+                "DELETE_USER",
+                "Permanent deletion of user",
+                Map.of(
+                        "userId", user.getId(),
+                        "userDeleted", user.getFullName(),
+                        "role", user.getRole().getRoleType()
+                )
+        );
     }
 
     @Override

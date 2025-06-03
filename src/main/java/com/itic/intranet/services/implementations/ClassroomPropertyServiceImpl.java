@@ -6,16 +6,15 @@ import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.EvaluationMapper;
 import com.itic.intranet.mappers.UserMapper;
-import com.itic.intranet.models.mysql.Evaluation;
-import com.itic.intranet.models.mysql.User;
 import com.itic.intranet.repositories.EvaluationRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.ClassroomPropertyService;
+import com.itic.intranet.services.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,31 +25,59 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
     private final UserMapper userMapper;
     private final EvaluationMapper evaluationMapper;
     private final EntityHelper entityHelper;
+    private final LogService logService;
 
     @Override
     public List<UserMinimalDto> getClassroomTeachers(Long classroomId) {
         entityHelper.getClassroom(classroomId);
-        List<User> teachers = userRepository.findTeachersByClassroomId(classroomId);
-        return teachers.stream()
+        List<UserMinimalDto> allTeachers = userRepository.findTeachersByClassroomId(classroomId)
+                .stream()
                 .map(userMapper::convertEntityToUserMinimalDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_CLASSROOM_TEACHERS",
+                "Getting all teachers of classroom",
+                Map.of(
+                        "resultCount", allTeachers.size()
+                )
+        );
+        return allTeachers;
     }
 
     @Override
     public List<UserMinimalDto> getClassroomStudents(Long classroomId) {
         entityHelper.getClassroom(classroomId);
-        List<User> students = userRepository.findByClassroomIdAndRoleType(classroomId, RoleType.STUDENT);
-        return students.stream()
+        List<UserMinimalDto> allStudents = userRepository.findByClassroomIdAndRoleType(classroomId, RoleType.STUDENT)
+                .stream()
                 .map(userMapper::convertEntityToUserMinimalDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_CLASSROOM_STUDENTS",
+                "Getting all students of classroom",
+                Map.of(
+                        "resultCount", allStudents.size()
+                )
+        );
+        return allStudents;
     }
 
     @Override
     public List<EvaluationResponseDto> getClassroomEvaluations(Long classroomId) {
         entityHelper.getClassroom(classroomId);
-        List<Evaluation> evaluations = evaluationRepository.findEvaluationByClassroomsId(classroomId);
-        return evaluations.stream()
+        List<EvaluationResponseDto> allEvaluations = evaluationRepository.findEvaluationByClassroomsId(classroomId)
+                .stream()
                 .map(evaluationMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_CLASSROOM_EVALUATIONS",
+                "Getting all evaluations of classroom",
+                Map.of(
+                        "resultCount", allEvaluations.size()
+                )
+        );
+        return allEvaluations;
     }
 }

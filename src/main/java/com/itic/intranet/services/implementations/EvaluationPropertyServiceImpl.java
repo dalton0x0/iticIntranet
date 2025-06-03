@@ -6,15 +6,15 @@ import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.NoteMapper;
 import com.itic.intranet.models.mysql.Classroom;
 import com.itic.intranet.models.mysql.Evaluation;
-import com.itic.intranet.models.mysql.Note;
 import com.itic.intranet.repositories.EvaluationRepository;
 import com.itic.intranet.repositories.NoteRepository;
 import com.itic.intranet.services.EvaluationPropertyService;
+import com.itic.intranet.services.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +24,7 @@ public class EvaluationPropertyServiceImpl implements EvaluationPropertyService 
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
     private final EntityHelper entityHelper;
+    private final LogService logService;
 
     @Override
     public void addClassroomToEvaluation(Long evaluationId, Long classroomId) {
@@ -34,6 +35,15 @@ public class EvaluationPropertyServiceImpl implements EvaluationPropertyService 
         }
         evaluation.getClassrooms().add(classroom);
         evaluationRepository.save(evaluation);
+        logService.info(
+                "SYSTEM",
+                "ADD_CLASSROOM_TO_USER",
+                "Adding classroom to evaluation",
+                Map.of(
+                        "evaluationTitle", evaluation.getTitle(),
+                        "classroomAdded", classroom.getName()
+                )
+        );
     }
 
     @Override
@@ -45,13 +55,32 @@ public class EvaluationPropertyServiceImpl implements EvaluationPropertyService 
         }
         evaluation.getClassrooms().remove(classroom);
         evaluationRepository.save(evaluation);
+        logService.info(
+                "SYSTEM",
+                "REMOVE_CLASSROOM_TO_USER",
+                "Removing classroom to evaluation",
+                Map.of(
+                        "evaluationTitle", evaluation.getTitle(),
+                        "classroomRemoved", classroom.getName()
+                )
+        );
     }
 
     @Override
     public List<NoteResponseDto> getEvaluationNotes(Long evaluationId) {
-        List<Note> notes = noteRepository.findByEvaluationId(evaluationId);
-        return notes.stream()
+        List<NoteResponseDto> notes = noteRepository.findByEvaluationId(evaluationId)
+                .stream()
                 .map(noteMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_EVALUATION_NOTES",
+                "Getting notes of evaluation",
+                Map.of(
+                        "evaluationId", evaluationId,
+                        "resultCount", notes.size()
+                )
+        );
+        return notes;
     }
 }

@@ -10,12 +10,13 @@ import com.itic.intranet.models.mysql.Classroom;
 import com.itic.intranet.repositories.ClassroomRepository;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.ClassroomService;
+import com.itic.intranet.services.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,18 +26,37 @@ public class ClassroomServiceImpl implements ClassroomService {
     private final UserRepository userRepository;
     private final ClassroomMapper classroomMapper;
     private final EntityHelper entityHelper;
+    private final LogService logService;
 
     @Override
     public List<ClassroomResponseDto> getAllClassrooms() {
-        return classroomRepository.findAll()
+        List<ClassroomResponseDto> allClassrooms = classroomRepository.findAll()
                 .stream()
                 .map(classroomMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_ALL_CLASSROOMS",
+                "Getting all classrooms",
+                Map.of(
+                        "resultCount", allClassrooms.size()
+                )
+        );
+        return allClassrooms;
     }
 
     @Override
     public ClassroomResponseDto getClassroomById(Long id) {
         Classroom classroom = entityHelper.getClassroom(id);
+        logService.info(
+                "SYSTEM",
+                "GET_CLASSROOM",
+                "Getting classroom by ID",
+                Map.of(
+                        "classroomId", classroom.getId(),
+                        "resultFound", classroom.getName()
+                )
+        );
         return classroomMapper.convertEntityToResponseDto(classroom);
     }
 
@@ -45,10 +65,20 @@ public class ClassroomServiceImpl implements ClassroomService {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new BadRequestException("Search keyword cannot be empty");
         }
-        return classroomRepository.findByNameContaining(keyword)
+        List<ClassroomResponseDto> results = classroomRepository.findByNameContaining(keyword)
                 .stream()
                 .map(classroomMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "SEARCH_CLASSROOM",
+                "Searching classrooms",
+                Map.of(
+                        "keyword", keyword,
+                        "resultCount", results.size()
+                )
+        );
+        return results;
     }
 
     @Override
@@ -57,6 +87,15 @@ public class ClassroomServiceImpl implements ClassroomService {
         checkUniqueConstraints(classroomDto);
         Classroom classroom = classroomMapper.convertDtoToEntity(classroomDto);
         Classroom savedClassroom = classroomRepository.save(classroom);
+        logService.info(
+                "SYSTEM",
+                "CREATE_CLASSROOM",
+                "Creating new classroom",
+                Map.of(
+                        "classroomId", savedClassroom.getId(),
+                        "classroomCreated", classroom.getName()
+                )
+        );
         return classroomMapper.convertEntityToResponseDto(savedClassroom);
     }
 
@@ -67,6 +106,15 @@ public class ClassroomServiceImpl implements ClassroomService {
         checkUniqueConstraintsForUpdate(id, classroomDto);
         classroomMapper.updateEntityFromDto(classroomDto, existingClassroom);
         Classroom updatedClassroom = classroomRepository.save(existingClassroom);
+        logService.info(
+                "SYSTEM",
+                "UPDATE_CLASSROOM",
+                "Updating existing classroom",
+                Map.of(
+                        "classroomId", updatedClassroom.getId(),
+                        "classroomNameUpdated", updatedClassroom.getName()
+                )
+        );
         return classroomMapper.convertEntityToResponseDto(updatedClassroom);
     }
 
@@ -78,6 +126,15 @@ public class ClassroomServiceImpl implements ClassroomService {
             throw new BadRequestException("Unable to delete this classroom, this content " + studentCount + " student");
         }
         classroomRepository.delete(classroom);
+        logService.info(
+                "SYSTEM",
+                "DELETE_CLASSROOM",
+                "Deleting existing classroom",
+                Map.of(
+                        "classroomId", classroom.getId(),
+                        "classroomName", classroom.getName()
+                )
+        );
     }
 
     private void validateClassroomRequest(ClassroomRequestDto dto) {

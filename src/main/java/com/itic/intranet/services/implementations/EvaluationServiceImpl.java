@@ -3,21 +3,20 @@ package com.itic.intranet.services.implementations;
 import com.itic.intranet.dtos.EvaluationDetailedResponseDto;
 import com.itic.intranet.dtos.EvaluationRequestDto;
 import com.itic.intranet.dtos.EvaluationResponseDto;
-import com.itic.intranet.dtos.NoteResponseDto;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.EvaluationMapper;
 import com.itic.intranet.models.mysql.Evaluation;
-import com.itic.intranet.models.mysql.Note;
 import com.itic.intranet.models.mysql.User;
 import com.itic.intranet.repositories.EvaluationRepository;
 import com.itic.intranet.services.EvaluationService;
+import com.itic.intranet.services.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,18 +25,37 @@ public class EvaluationServiceImpl implements EvaluationService {
     private final EvaluationRepository evaluationRepository;
     private final EvaluationMapper evaluationMapper;
     private final EntityHelper entityHelper;
+    private final LogService logService;
 
     @Override
     public List<EvaluationDetailedResponseDto> getAllEvaluations() {
-        return evaluationRepository.findAll()
+        List<EvaluationDetailedResponseDto> allEvaluations = evaluationRepository.findAll()
                 .stream()
                 .map(evaluationMapper::convertToDetailedDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_ALL_EVALUATIONS",
+                "Getting all evaluations",
+                Map.of(
+                        "resultCount", allEvaluations.size()
+                )
+        );
+        return allEvaluations;
     }
 
     @Override
     public EvaluationResponseDto getEvaluationById(Long id) {
         Evaluation evaluation = entityHelper.getEvaluation(id);
+        logService.info(
+                "SYSTEM",
+                "GET_EVALUATION",
+                "Getting evaluation by ID",
+                Map.of(
+                        "evaluationId", evaluation.getId(),
+                        "resultFound", evaluation.getTitle()
+                )
+        );
         return evaluationMapper.convertEntityToResponseDto(evaluation);
     }
 
@@ -46,10 +64,20 @@ public class EvaluationServiceImpl implements EvaluationService {
         if (title == null || title.trim().isEmpty()) {
             throw new BadRequestException("Search title cannot be empty");
         }
-        return evaluationRepository.findByTitleContainingIgnoreCase(title)
+        List<EvaluationResponseDto> results = evaluationRepository.findByTitleContainingIgnoreCase(title)
                 .stream()
                 .map(evaluationMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "SEARCH_EVALUATION",
+                "Searching evaluations",
+                Map.of(
+                        "keyword", title,
+                        "resultCount", results.size()
+                )
+        );
+        return results;
     }
 
     @Override
@@ -61,6 +89,15 @@ public class EvaluationServiceImpl implements EvaluationService {
         validateEvaluationRequest(evaluationDto);
         Evaluation evaluation = evaluationMapper.convertDtoToEntity(evaluationDto, user);
         Evaluation savedEvaluation = evaluationRepository.save(evaluation);
+        logService.info(
+                "SYSTEM",
+                "CREATE_EVALUATION",
+                "Creating new evaluation",
+                Map.of(
+                        "evaluationId", savedEvaluation.getId(),
+                        "evaluationCreated", savedEvaluation.getTitle()
+                )
+        );
         return evaluationMapper.convertEntityToResponseDto(savedEvaluation);
     }
 
@@ -70,6 +107,15 @@ public class EvaluationServiceImpl implements EvaluationService {
         validateEvaluationRequest(evaluationDto);
         evaluationMapper.updateFromEntityDto(evaluationDto, existingEvaluation, existingEvaluation.getCreatedBy());
         Evaluation updatedEvaluation = evaluationRepository.save(existingEvaluation);
+        logService.info(
+                "SYSTEM",
+                "UPDATE_EVALUATION",
+                "Update existing evaluation",
+                Map.of(
+                        "evaluationId", updatedEvaluation.getId(),
+                        "evaluationUpdated", updatedEvaluation.getTitle()
+                )
+        );
         return evaluationMapper.convertEntityToResponseDto(updatedEvaluation);
     }
 
@@ -80,6 +126,15 @@ public class EvaluationServiceImpl implements EvaluationService {
             throw new BadRequestException("Cannot delete: Evaluation has associated notes");
         }
         evaluationRepository.delete(evaluation);
+        logService.info(
+                "SYSTEM",
+                "DELETE_EVALUATION",
+                "Deleting evaluation",
+                Map.of(
+                        "evaluationId", evaluation.getId(),
+                        "evaluationDeleted", evaluation.getTitle()
+                )
+        );
     }
 
     @Override
@@ -106,13 +161,5 @@ public class EvaluationServiceImpl implements EvaluationService {
         if (evaluationRequestDto.getMinValue() >= evaluationRequestDto.getMaxValue()) {
             throw new BadRequestException("The minimum note must be lower than the maximum score");
         }
-    }
-
-    private NoteResponseDto convertToNoteDto(Note note) {
-        return NoteResponseDto.builder()
-                .id(note.getId())
-                .value(note.getValue())
-                .studentName(note.getStudent().getFirstName() + " " + note.getStudent().getLastName())
-                .build();
     }
 }

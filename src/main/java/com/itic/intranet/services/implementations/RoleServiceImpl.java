@@ -8,13 +8,14 @@ import com.itic.intranet.mappers.RoleMapper;
 import com.itic.intranet.models.mysql.Role;
 import com.itic.intranet.repositories.RoleRepository;
 import com.itic.intranet.repositories.UserRepository;
+import com.itic.intranet.services.LogService;
 import com.itic.intranet.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,18 +25,37 @@ public class RoleServiceImpl implements RoleService {
     private final UserRepository userRepository;
     private final RoleMapper roleMapper;
     private final EntityHelper entityHelper;
+    private final LogService logService;
 
     @Override
     public List<RoleResponseDto> getAllRoles() {
-        return roleRepository.findAll()
+        List<RoleResponseDto> allRoles = roleRepository.findAll()
                 .stream()
                 .map(roleMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_ALL_ROLES",
+                "Getting all roles",
+                Map.of(
+                        "resultCount", allRoles.size()
+                )
+        );
+        return allRoles;
     }
 
     @Override
     public RoleResponseDto getRoleById(Long id) {
         Role role = entityHelper.getRole(id);
+        logService.info(
+                "SYSTEM",
+                "GET_ROLE",
+                "Getting role by ID",
+                Map.of(
+                        "roleId", role.getId(),
+                        "resultFound", role.getRoleType()
+                )
+        );
         return roleMapper.convertEntityToResponseDto(role);
     }
 
@@ -44,10 +64,20 @@ public class RoleServiceImpl implements RoleService {
         if (label == null || label.trim().isEmpty()) {
             throw new BadRequestException("Search keyword cannot be empty");
         }
-        return roleRepository.findByLabel(label)
+        List<RoleResponseDto> results = roleRepository.findByLabel(label)
                 .stream()
                 .map(roleMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "SEARCH_ROLE",
+                "Searching roles",
+                Map.of(
+                        "keyword", label,
+                        "resultCount", results.size()
+                )
+        );
+        return results;
     }
 
     @Override
@@ -56,6 +86,15 @@ public class RoleServiceImpl implements RoleService {
         checkUniqueConstraints(roleDto);
         Role role = roleMapper.convertToDtoEntity(roleDto);
         Role savedRole = roleRepository.save(role);
+        logService.info(
+                "SYSTEM",
+                "CREATE_ROLE",
+                "Creating new role",
+                Map.of(
+                        "roleId", savedRole.getId(),
+                        "roleCreated", savedRole.getRoleType()
+                )
+        );
         return roleMapper.convertEntityToResponseDto(savedRole);
     }
 
@@ -66,6 +105,15 @@ public class RoleServiceImpl implements RoleService {
         checkUniqueConstraintsForUpdate(id, roleDto);
         roleMapper.updateEntityFromDto(roleDto, existingRole);
         Role updatedRole = roleRepository.save(existingRole);
+        logService.info(
+                "SYSTEM",
+                "UPDATE_ROLE",
+                "Updating new role",
+                Map.of(
+                        "roleId", updatedRole.getId(),
+                        "roleUpdated", updatedRole.getRoleType()
+                )
+        );
         return roleMapper.convertEntityToResponseDto(updatedRole);
     }
 
@@ -77,6 +125,15 @@ public class RoleServiceImpl implements RoleService {
             throw new BadRequestException("Unable to delete this role . There is one or more users with this role : " + userCount);
         }
         roleRepository.delete(role);
+        logService.info(
+                "SYSTEM",
+                "DELETE_ROLE",
+                "Deleting new role",
+                Map.of(
+                        "roleId", role.getId(),
+                        "roleDeleted", role.getRoleType()
+                )
+        );
     }
 
     private void validateRoleRequest(RoleRequestDto roleDto) {

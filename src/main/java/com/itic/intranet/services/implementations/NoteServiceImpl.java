@@ -9,12 +9,13 @@ import com.itic.intranet.models.mysql.Evaluation;
 import com.itic.intranet.models.mysql.Note;
 import com.itic.intranet.models.mysql.User;
 import com.itic.intranet.repositories.NoteRepository;
+import com.itic.intranet.services.LogService;
 import com.itic.intranet.services.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +24,37 @@ public class NoteServiceImpl implements NoteService {
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
     private final EntityHelper entityHelper;
+    private final LogService logService;
 
     @Override
     public List<NoteResponseDto> getAllNotes() {
-        List<Note> notes = noteRepository.findAll();
-        return notes.stream()
+        List<NoteResponseDto> allNotes = noteRepository.findAll()
+                .stream()
                 .map(noteMapper::convertEntityToResponseDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_ALL_NOTES",
+                "Getting all allNotes",
+                Map.of(
+                        "resultCount", allNotes.size()
+                )
+        );
+        return allNotes;
     }
 
     @Override
     public NoteResponseDto getNoteById(Long id) {
         Note note = entityHelper.getNote(id);
+        logService.info(
+                "SYSTEM",
+                "GET_NOTE",
+                "Getting note by ID",
+                Map.of(
+                        "noteId", note.getId(),
+                        "noteValue", note.getValue()
+                )
+        );
         return noteMapper.convertEntityToResponseDto(note);
     }
 
@@ -46,6 +66,18 @@ public class NoteServiceImpl implements NoteService {
         checkIfAlreadyNoted(evaluation, student);
         Note note = noteMapper.convertDtoToEntity(noteDto, student, evaluation);
         Note savedNote = noteRepository.save(note);
+        logService.info(
+                "SYSTEM",
+                "ADD_NOTE",
+                "Adding new note",
+                Map.of(
+                        "noteValue", savedNote.getValue(),
+                        "evaluationId", savedNote.getEvaluation().getId(),
+                        "evaluationNoted", savedNote.getEvaluation().getTitle(),
+                        "studentId", savedNote.getStudent().getId(),
+                        "studentNoted", savedNote.getStudent().getFullName()
+                )
+        );
         return noteMapper.convertEntityToResponseDto(savedNote);
     }
 
@@ -56,13 +88,35 @@ public class NoteServiceImpl implements NoteService {
         Evaluation evaluation = entityHelper.getEvaluation(noteDto.getEvaluationId());
         validateNoteRequest(noteDto);
         noteMapper.updateEntityFromDto(noteDto, existingNote, student, evaluation);
-        return noteMapper.convertEntityToResponseDto(noteRepository.save(existingNote));
+        Note updatedNote = noteRepository.save(existingNote);
+        logService.info(
+                "SYSTEM",
+                "UPDATE_NOTE",
+                "Updating note",
+                Map.of(
+                        "noteValue", updatedNote.getValue(),
+                        "evaluationId", updatedNote.getEvaluation().getId(),
+                        "evaluationNoted", updatedNote.getEvaluation().getTitle(),
+                        "studentId", updatedNote.getStudent().getId(),
+                        "studentNoted", updatedNote.getStudent().getFullName()
+                )
+        );
+        return noteMapper.convertEntityToResponseDto(updatedNote);
     }
 
     @Override
     public void deleteNote(Long id) {
         Note note = entityHelper.getNote(id);
         noteRepository.delete(note);
+        logService.info(
+                "SYSTEM",
+                "DELETE_NOTE",
+                "Deleting note",
+                Map.of(
+                        "noteId", note.getId(),
+                        "noteValue", note.getValue()
+                )
+        );
     }
 
     private void validateNoteRequest(NoteRequestDto noteDto) {

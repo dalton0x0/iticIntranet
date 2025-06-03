@@ -6,17 +6,17 @@ import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.NoteMapper;
 import com.itic.intranet.models.mysql.Classroom;
-import com.itic.intranet.models.mysql.Note;
 import com.itic.intranet.models.mysql.Role;
 import com.itic.intranet.models.mysql.User;
 import com.itic.intranet.repositories.NoteRepository;
 import com.itic.intranet.repositories.UserRepository;
+import com.itic.intranet.services.LogService;
 import com.itic.intranet.services.UserPropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +26,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
     private final NoteRepository noteRepository;
     private final NoteMapper noteMapper;
     private final EntityHelper entityHelper;
+    private final LogService logService;
 
     @Override
     public void assignRoleToUser(Long userId, Long roleId) {
@@ -33,6 +34,16 @@ public class UserPropertyServiceImpl implements UserPropertyService {
         Role role = entityHelper.getRole(roleId);
         user.setRole(role);
         userRepository.save(user);
+        logService.info(
+                "SYSTEM",
+                "ASSIGN_ROLE",
+                "Assigning role",
+                Map.of(
+                        "userId", userId,
+                        "userName", user.getFullName(),
+                        "roleAssigned", user.getRole().getRoleType()
+                )
+        );
     }
 
     @Override
@@ -47,6 +58,16 @@ public class UserPropertyServiceImpl implements UserPropertyService {
         }
         user.setRole(null);
         userRepository.save(user);
+        logService.info(
+                "SYSTEM",
+                "REMOVE_ROLE",
+                "Removing role",
+                Map.of(
+                        "userId", userId,
+                        "userName", user.getFullName(),
+                        "roleRemoved", role.getRoleType()
+                )
+        );
     }
 
     @Override
@@ -55,6 +76,16 @@ public class UserPropertyServiceImpl implements UserPropertyService {
         if (user.getRole() == null) {
             throw new BadRequestException("User has no role assigned");
         }
+        logService.info(
+                "SYSTEM",
+                "GET_ROLE_OF_USER",
+                "Getting role of user",
+                Map.of(
+                        "userId", userId,
+                        "userName", user.getFullName(),
+                        "roleFound", user.getRole().getRoleType()
+                )
+        );
         return user.getRole().getRoleType();
     }
 
@@ -76,6 +107,16 @@ public class UserPropertyServiceImpl implements UserPropertyService {
             throw new BadRequestException("Admin cannot be assigned to a classroom");
         }
         userRepository.save(user);
+        logService.info(
+                "SYSTEM",
+                "ASSIGN_CLASSROOM_TO_USER",
+                "Assigning classroom",
+                Map.of(
+                        "userId", userId,
+                        "userName", user.getFullName(),
+                        "classAssigned", classroom.getName()
+                )
+        );
     }
 
     @Override
@@ -98,13 +139,33 @@ public class UserPropertyServiceImpl implements UserPropertyService {
             user.setClassroom(null);
         }
         userRepository.save(user);
+        logService.info(
+                "SYSTEM",
+                "REMOVE_CLASSROOM_TO_USER",
+                "Removing classroom",
+                Map.of(
+                        "userId", userId,
+                        "userName", user.getFullName(),
+                        "classRemoved", classroom.getName()
+                )
+        );
     }
 
     @Override
     public List<NoteMinimalDto> getStudentNotes(Long studentId) {
-        List<Note> notes = noteRepository.findByStudentId(studentId);
-        return notes.stream()
+        List<NoteMinimalDto> userNotes = noteRepository.findByStudentId(studentId)
+                .stream()
                 .map(noteMapper::convertEntityToUserMinimalDto)
-                .collect(Collectors.toList());
+                .toList();
+        logService.info(
+                "SYSTEM",
+                "GET_STUDENT_NOTES",
+                "Getting student notes",
+                Map.of(
+                        "studentId", studentId,
+                        "resultCount", userNotes.size()
+                )
+        );
+        return userNotes;
     }
 }
