@@ -226,13 +226,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkUniqueConstraints(UserRequestDto dto) {
-//        userRepository.findByEmail(dto.getEmail()).ifPresent(user -> {
-//            throw new BadRequestException("Email already exists");
-//        });
-//        userRepository.findByUsername(dto.getUsername()).ifPresent(r -> {
-//            throw new BadRequestException("Username already exists");
-//        });
-
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new BadRequestException("Email already exists");
         }
