@@ -226,12 +226,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     private void checkUniqueConstraints(UserRequestDto dto) {
-        userRepository.findByEmail(dto.getEmail()).ifPresent(user -> {
+//        userRepository.findByEmail(dto.getEmail()).ifPresent(user -> {
+//            throw new BadRequestException("Email already exists");
+//        });
+//        userRepository.findByUsername(dto.getUsername()).ifPresent(r -> {
+//            throw new BadRequestException("Username already exists");
+//        });
+
+        if (userRepository.existsByEmail(dto.getEmail())) {
             throw new BadRequestException("Email already exists");
-        });
-        userRepository.findByUsername(dto.getUsername()).ifPresent(r -> {
+        }
+        if (userRepository.existsByUsername(dto.getUsername())) {
             throw new BadRequestException("Username already exists");
-        });
+        }
     }
 
     private void checkUniqueConstraintsForUpdate(Long userId, UserRequestDto dto) {
