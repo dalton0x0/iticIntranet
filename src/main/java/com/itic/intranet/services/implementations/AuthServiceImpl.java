@@ -34,9 +34,11 @@ public class AuthServiceImpl implements AuthService{
                 .orElseThrow(() -> {
                     logService.warn(
                             loginRequestDto.getUsername(),
-                            "LOGIN FAILED",
-                            "Need to connect with invalid username",
-                            null
+                            "LOGIN",
+                            "Login failed ! Need to connect with invalid username",
+                            Map.of(
+                                    "username", loginRequestDto.getUsername()
+                            )
                     );
                     return new UsernameNotFoundException("Invalid username or password");
                 });
@@ -58,11 +60,12 @@ public class AuthServiceImpl implements AuthService{
 
             logService.info(
                     loginRequestDto.getUsername(),
-                    "LOGIN SUCCESSFUL",
-                    "User logged successfully",
+                    "LOGIN",
+                    "Login successful",
                     Map.of(
                             "userId", existingUser.getId(),
-                            "role", existingUser.getRole().getRoleType() == null ? "null" : existingUser.getRole().getRoleType().name()
+                            "userName", existingUser.getFullName(),
+                            "role", existingUser.getRole().getRoleType().name()
                     )
             );
 
@@ -74,11 +77,12 @@ public class AuthServiceImpl implements AuthService{
         } catch (Exception e) {
             logService.warn(
                     loginRequestDto.getUsername(),
-                    "LOGIN SUCCESSFUL",
-                    "User logged successfully",
+                    "LOGIN",
+                    "Login failed",
                     Map.of(
                             "userId", existingUser.getId(),
-                            "role", existingUser.getRole().getRoleType() == null ? "null" : existingUser.getRole().getRoleType().name()
+                            "userName", existingUser.getFullName(),
+                            "role", existingUser.getRole().getRoleType().name()
                     )
             );
             throw new UsernameNotFoundException("Invalid username or password");
