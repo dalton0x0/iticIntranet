@@ -13,8 +13,6 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
 
-COPY .env /app/.env
-
 COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
