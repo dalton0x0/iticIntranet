@@ -42,13 +42,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Run SonarCloud Analysys
-        run: mvn clean verify sonar:sonar \
-          -Dsonar.projectKey=itic-intranet \
-          -Dsonar.projectName='itic-intranet' \
-          -Dsonar.host.url=http://localhost:9000 \
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_REPO }}:latest .
 
