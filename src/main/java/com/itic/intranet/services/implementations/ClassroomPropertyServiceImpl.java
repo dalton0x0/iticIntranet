@@ -39,7 +39,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
                 "GET_CLASSROOM_TEACHERS",
                 "Getting all teachers of classroom",
                 Map.of(
-                        "resultCount", allTeachers.size()
+                        "allTeachersClassroomCounted", allTeachers.size()
                 )
         );
         return allTeachers;
@@ -57,7 +57,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
                 "GET_CLASSROOM_STUDENTS",
                 "Getting all students of classroom",
                 Map.of(
-                        "resultCount", allStudents.size()
+                        "allStudentClassroomCounted", allStudents.size()
                 )
         );
         return allStudents;
@@ -75,7 +75,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
                 "GET_CLASSROOM_EVALUATIONS",
                 "Getting all evaluations of classroom",
                 Map.of(
-                        "resultCount", allEvaluations.size()
+                        "allEvaluationsClassroomCounted", allEvaluations.size()
                 )
         );
         return allEvaluations;

@@ -39,7 +39,7 @@ public class ClassroomServiceImpl implements ClassroomService {
                 "GET_ALL_CLASSROOMS",
                 "Getting all classrooms",
                 Map.of(
-                        "resultCount", allClassrooms.size()
+                        "allClassroomsCounted", allClassrooms.size()
                 )
         );
         return allClassrooms;
@@ -53,7 +53,6 @@ public class ClassroomServiceImpl implements ClassroomService {
                 "GET_CLASSROOM",
                 "Getting classroom by ID",
                 Map.of(
-                        "classroomId", classroom.getId(),
                         "resultFound", classroom.getName()
                 )
         );
@@ -75,7 +74,7 @@ public class ClassroomServiceImpl implements ClassroomService {
                 "Searching classrooms",
                 Map.of(
                         "keyword", keyword,
-                        "resultCount", results.size()
+                        "classroomSearchedCount", results.size()
                 )
         );
         return results;
@@ -92,7 +91,6 @@ public class ClassroomServiceImpl implements ClassroomService {
                 "CREATE_CLASSROOM",
                 "Creating new classroom",
                 Map.of(
-                        "classroomId", savedClassroom.getId(),
                         "classroomCreated", classroom.getName()
                 )
         );
@@ -111,7 +109,6 @@ public class ClassroomServiceImpl implements ClassroomService {
                 "UPDATE_CLASSROOM",
                 "Updating existing classroom",
                 Map.of(
-                        "classroomId", updatedClassroom.getId(),
                         "classroomNameUpdated", updatedClassroom.getName()
                 )
         );
@@ -131,7 +128,6 @@ public class ClassroomServiceImpl implements ClassroomService {
                 "DELETE_CLASSROOM",
                 "Deleting existing classroom",
                 Map.of(
-                        "classroomId", classroom.getId(),
                         "classroomName", classroom.getName()
                 )
         );

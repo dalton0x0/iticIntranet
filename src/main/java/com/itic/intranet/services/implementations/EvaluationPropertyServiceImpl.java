@@ -77,8 +77,7 @@ public class EvaluationPropertyServiceImpl implements EvaluationPropertyService 
                 "GET_EVALUATION_NOTES",
                 "Getting notes of evaluation",
                 Map.of(
-                        "evaluationId", evaluationId,
-                        "resultCount", notes.size()
+                        "allNotesCountedForEvaluation", notes.size()
                 )
         );
         return notes;

@@ -37,7 +37,7 @@ public class NoteServiceImpl implements NoteService {
                 "GET_ALL_NOTES",
                 "Getting all allNotes",
                 Map.of(
-                        "resultCount", allNotes.size()
+                        "allNotesCounted", allNotes.size()
                 )
         );
         return allNotes;
@@ -51,8 +51,7 @@ public class NoteServiceImpl implements NoteService {
                 "GET_NOTE",
                 "Getting note by ID",
                 Map.of(
-                        "noteId", note.getId(),
-                        "noteValue", note.getValue()
+                        "noteFound", note.getValue()
                 )
         );
         return noteMapper.convertEntityToResponseDto(note);
@@ -71,10 +70,8 @@ public class NoteServiceImpl implements NoteService {
                 "ADD_NOTE",
                 "Adding new note",
                 Map.of(
-                        "noteValue", savedNote.getValue(),
-                        "evaluationId", savedNote.getEvaluation().getId(),
+                        "noteValueCreated", savedNote.getValue(),
                         "evaluationNoted", savedNote.getEvaluation().getTitle(),
-                        "studentId", savedNote.getStudent().getId(),
                         "studentNoted", savedNote.getStudent().getFullName()
                 )
         );
@@ -94,10 +91,8 @@ public class NoteServiceImpl implements NoteService {
                 "UPDATE_NOTE",
                 "Updating note",
                 Map.of(
-                        "noteValue", updatedNote.getValue(),
-                        "evaluationId", updatedNote.getEvaluation().getId(),
-                        "evaluationNoted", updatedNote.getEvaluation().getTitle(),
-                        "studentId", updatedNote.getStudent().getId(),
+                        "noteValueUpdated", updatedNote.getValue(),
+                        "newEvaluationNoted", updatedNote.getEvaluation().getTitle(),
                         "studentNoted", updatedNote.getStudent().getFullName()
                 )
         );
@@ -113,8 +108,7 @@ public class NoteServiceImpl implements NoteService {
                 "DELETE_NOTE",
                 "Deleting note",
                 Map.of(
-                        "noteId", note.getId(),
-                        "noteValue", note.getValue()
+                        "noteValueDeleted", note.getValue()
                 )
         );
     }

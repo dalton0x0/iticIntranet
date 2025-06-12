@@ -39,7 +39,6 @@ public class UserPropertyServiceImpl implements UserPropertyService {
                 "ASSIGN_ROLE",
                 "Assigning role",
                 Map.of(
-                        "userId", userId,
                         "userName", user.getFullName(),
                         "roleAssigned", user.getRole().getRoleType()
                 )
@@ -63,7 +62,6 @@ public class UserPropertyServiceImpl implements UserPropertyService {
                 "REMOVE_ROLE",
                 "Removing role",
                 Map.of(
-                        "userId", userId,
                         "userName", user.getFullName(),
                         "roleRemoved", role.getRoleType()
                 )
@@ -112,7 +110,6 @@ public class UserPropertyServiceImpl implements UserPropertyService {
                 "ASSIGN_CLASSROOM_TO_USER",
                 "Assigning classroom",
                 Map.of(
-                        "userId", userId,
                         "userName", user.getFullName(),
                         "classAssigned", classroom.getName()
                 )
@@ -144,7 +141,6 @@ public class UserPropertyServiceImpl implements UserPropertyService {
                 "REMOVE_CLASSROOM_TO_USER",
                 "Removing classroom",
                 Map.of(
-                        "userId", userId,
                         "userName", user.getFullName(),
                         "classRemoved", classroom.getName()
                 )
@@ -162,8 +158,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
                 "GET_STUDENT_NOTES",
                 "Getting student notes",
                 Map.of(
-                        "studentId", studentId,
-                        "resultCount", userNotes.size()
+                        "allNotesCounted", userNotes.size()
                 )
         );
         return userNotes;

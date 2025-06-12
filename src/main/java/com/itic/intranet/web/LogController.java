@@ -19,7 +19,7 @@ public class LogController {
     private final LogService logService;
 
     @GetMapping
-    private ResponseEntity<List<LogDto>> getAllLogs() {
+    public ResponseEntity<List<LogDto>> getAllLogs() {
         List<LogDto> logs = logService.getAllLogs();
         return logs.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(logs);
     }

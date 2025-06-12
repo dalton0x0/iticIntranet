@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -85,7 +86,7 @@ public class AuthServiceImpl implements AuthService{
                             "role", existingUser.getRole().getRoleType().name()
                     )
             );
-            throw new UsernameNotFoundException("Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password");
         }
     }
 }

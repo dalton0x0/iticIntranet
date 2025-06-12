@@ -34,9 +34,8 @@ public class RolePropertyServiceImpl implements RolePropertyService {
                 "GET_USERS_OF_ROLE",
                 "Getting users of role",
                 Map.of(
-                        "roleId", roleId,
                         "roleType", role.getRoleType(),
-                        "resultCount", usersRole.size()
+                        "allUsersCounted", usersRole.size()
                 )
         );
         return usersRole;

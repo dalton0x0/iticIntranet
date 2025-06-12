@@ -38,7 +38,7 @@ public class EvaluationServiceImpl implements EvaluationService {
                 "GET_ALL_EVALUATIONS",
                 "Getting all evaluations",
                 Map.of(
-                        "resultCount", allEvaluations.size()
+                        "allEvaluationsCounted", allEvaluations.size()
                 )
         );
         return allEvaluations;
@@ -52,8 +52,7 @@ public class EvaluationServiceImpl implements EvaluationService {
                 "GET_EVALUATION",
                 "Getting evaluation by ID",
                 Map.of(
-                        "evaluationId", evaluation.getId(),
-                        "resultFound", evaluation.getTitle()
+                        "evaluationFound", evaluation.getTitle()
                 )
         );
         return evaluationMapper.convertEntityToResponseDto(evaluation);
@@ -74,7 +73,7 @@ public class EvaluationServiceImpl implements EvaluationService {
                 "Searching evaluations",
                 Map.of(
                         "keyword", title,
-                        "resultCount", results.size()
+                        "evaluationsFoundedCount", results.size()
                 )
         );
         return results;
@@ -94,7 +93,6 @@ public class EvaluationServiceImpl implements EvaluationService {
                 "CREATE_EVALUATION",
                 "Creating new evaluation",
                 Map.of(
-                        "evaluationId", savedEvaluation.getId(),
                         "evaluationCreated", savedEvaluation.getTitle()
                 )
         );
@@ -112,7 +110,6 @@ public class EvaluationServiceImpl implements EvaluationService {
                 "UPDATE_EVALUATION",
                 "Update existing evaluation",
                 Map.of(
-                        "evaluationId", updatedEvaluation.getId(),
                         "evaluationUpdated", updatedEvaluation.getTitle()
                 )
         );
@@ -131,7 +128,6 @@ public class EvaluationServiceImpl implements EvaluationService {
                 "DELETE_EVALUATION",
                 "Deleting evaluation",
                 Map.of(
-                        "evaluationId", evaluation.getId(),
                         "evaluationDeleted", evaluation.getTitle()
                 )
         );

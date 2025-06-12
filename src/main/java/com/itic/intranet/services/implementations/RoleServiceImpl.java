@@ -38,7 +38,7 @@ public class RoleServiceImpl implements RoleService {
                 "GET_ALL_ROLES",
                 "Getting all roles",
                 Map.of(
-                        "resultCount", allRoles.size()
+                        "allNotesCounted", allRoles.size()
                 )
         );
         return allRoles;
@@ -52,8 +52,7 @@ public class RoleServiceImpl implements RoleService {
                 "GET_ROLE",
                 "Getting role by ID",
                 Map.of(
-                        "roleId", role.getId(),
-                        "resultFound", role.getRoleType()
+                        "roleFound", role.getRoleType()
                 )
         );
         return roleMapper.convertEntityToResponseDto(role);
@@ -74,7 +73,7 @@ public class RoleServiceImpl implements RoleService {
                 "Searching roles",
                 Map.of(
                         "keyword", label,
-                        "resultCount", results.size()
+                        "roleSearched", results.size()
                 )
         );
         return results;
@@ -91,7 +90,6 @@ public class RoleServiceImpl implements RoleService {
                 "CREATE_ROLE",
                 "Creating new role",
                 Map.of(
-                        "roleId", savedRole.getId(),
                         "roleCreated", savedRole.getRoleType()
                 )
         );
@@ -110,7 +108,6 @@ public class RoleServiceImpl implements RoleService {
                 "UPDATE_ROLE",
                 "Updating new role",
                 Map.of(
-                        "roleId", updatedRole.getId(),
                         "roleUpdated", updatedRole.getRoleType()
                 )
         );
@@ -130,7 +127,6 @@ public class RoleServiceImpl implements RoleService {
                 "DELETE_ROLE",
                 "Deleting new role",
                 Map.of(
-                        "roleId", role.getId(),
                         "roleDeleted", role.getRoleType()
                 )
         );

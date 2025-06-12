@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "GET_ALL_USERS",
                 "Getting all users",
                 Map.of(
-                        "resultCount", allUsers.size()
+                        "allUsersCounted", allUsers.size()
                 )
         );
         return allUsers;
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "GET_ALL_ACTIVE_USERS",
                 "Getting all active users",
                 Map.of(
-                        "resultCount", allActiveUsers.size()
+                        "allActiveUsersCounted", allActiveUsers.size()
                 )
         );
         return allActiveUsers;
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "Getting user by ID",
                 Map.of(
                         "userId", user.getId(),
-                        "resultFound", user.getFullName()
+                        "userFound", user.getFullName()
                 )
         );
         return userMapper.convertEntityToResponseDto(user);
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "Searching users",
                 Map.of(
                         "keyword", keyword,
-                        "resultCount", results.size()
+                        "userSearched", results.size()
                 )
         );
         return results;
@@ -113,7 +113,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "CREATE_USER",
                 "Creating new user",
                 Map.of(
-                        "userId", savedUser.getId(),
                         "userCreated", savedUser.getFullName(),
                         "role", role.getRoleType()
                 )
@@ -134,7 +133,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "UPDATE_USER",
                 "Updating existing user",
                 Map.of(
-                        "userId", updatedUser.getId(),
                         "userUpdated", updatedUser.getFullName(),
                         "role", role.getRoleType()
                 )
@@ -152,7 +150,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "DEACTIVATE_USER",
                 "Deactivating user",
                 Map.of(
-                        "userId", existingUser.getId(),
                         "userDeactivated", existingUser.getFullName(),
                         "role", existingUser.getRole().getRoleType()
                 )
@@ -168,7 +165,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "DELETE_USER",
                 "Permanent deletion of user",
                 Map.of(
-                        "userId", user.getId(),
                         "userDeleted", user.getFullName(),
                         "role", user.getRole().getRoleType()
                 )
@@ -206,21 +202,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new BadRequestException("Password must be at least 8 characters");
         }
 
-        String regexPasswordUppercaseLetter = ".*[A-Z].*";
-        String regexPasswordLowercaseLetter = ".*[a-z].*";
-        String regexPasswordDigit = ".*[0-9].*";
-        String regexPasswordSpecialCharacter = ".*[#?!@$%^&*-].*";
+        String regexForUppercaseLetter = ".*[A-Z].*";
+        String regexForLowercaseLetter = ".*[a-z].*";
+        String regexForDigit = ".*[0-9].*";
+        String regexForSpecialCharacter = ".*[#?!@$%^&*-].*";
 
-        if (!dto.getPassword().matches(regexPasswordUppercaseLetter)) {
+        if (!dto.getPassword().matches(regexForUppercaseLetter)) {
             throw new BadRequestException("Password must contain at least one uppercase letter");
         }
-        if (!dto.getPassword().matches(regexPasswordLowercaseLetter)) {
+        if (!dto.getPassword().matches(regexForLowercaseLetter)) {
             throw new BadRequestException("Password must contain at least one lowercase letter");
         }
-        if (!dto.getPassword().matches(regexPasswordDigit)) {
+        if (!dto.getPassword().matches(regexForDigit)) {
             throw new BadRequestException("Password must contain at least one digit");
         }
-        if (!dto.getPassword().matches(regexPasswordSpecialCharacter)) {
+        if (!dto.getPassword().matches(regexForSpecialCharacter)) {
             throw new BadRequestException("Password must contain at least one special character");
         }
     }
