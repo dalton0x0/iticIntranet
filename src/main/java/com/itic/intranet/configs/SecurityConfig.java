@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .authorizeHttpRequests(request -> request.requestMatchers(
-                        "/api/**"
+                        "/api/v18/auth/**"
                 ).permitAll())
                 .authorizeHttpRequests(request -> request.requestMatchers(
                         "/swagger-ui.html",
@@ -45,14 +45,14 @@ public class SecurityConfig {
                         "/api/v18/users/**",
                         "/api/v18/roles/**",
                         "/api/v18/classrooms/**",
-                        "/api/v18/evaluations/**",
-                        "/api/v18/notes/**",
                         "/api/v18/logs/**"
                 ).hasAuthority("ADMIN"))
                 .authorizeHttpRequests(request -> request.requestMatchers(
-                        "/api/v18/evaluations/**",
+                        "/api/v18/evaluations/**"
+                ).hasAnyAuthority("ADMIN", "TEACHER"))
+                .authorizeHttpRequests(request -> request.requestMatchers(
                         "/api/v18/notes/**"
-                ).hasAuthority("TEACHER"))
+                ).hasAnyAuthority("ADMIN", "TEACHER", "STUDENT"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
