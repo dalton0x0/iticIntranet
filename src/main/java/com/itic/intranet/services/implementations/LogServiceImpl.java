@@ -1,6 +1,7 @@
 package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.LogDto;
+import com.itic.intranet.mappers.LogMapper;
 import com.itic.intranet.models.mongo.Log;
 import com.itic.intranet.repositories.LogRepository;
 import com.itic.intranet.services.LogService;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class LogServiceImpl implements LogService {
 
     private final LogRepository logRepository;
+    private final LogMapper logMapper;
 
     @Override
     public void info(String actor, String action, String message, Map<String, Object> details) {
@@ -36,7 +38,7 @@ public class LogServiceImpl implements LogService {
     public List<LogDto> getAllLogs() {
         return logRepository.findAll()
                 .stream()
-                .map(LogDto::convertToDto)
+                .map(logMapper::convertToDto)
                 .toList();
     }
 
@@ -44,7 +46,7 @@ public class LogServiceImpl implements LogService {
     public List<LogDto> getLogsByActor(String actor) {
         return logRepository.findByActor(actor)
                 .stream()
-                .map(LogDto::convertToDto)
+                .map(logMapper::convertToDto)
                 .toList();
     }
 

@@ -21,16 +21,4 @@ public class LogDto {
     private String message;
     private Map<String, Object> details;
     private LocalDateTime timestamp;
-
-    public static LogDto convertToDto(Log log) {
-        return LogDto.builder()
-                .id(log.getId())
-                .level(log.getLevel())
-                .actor(log.getActor())
-                .action(log.getAction())
-                .message(log.getMessage())
-                .details(log.getDetails())
-                .timestamp(log.getTimestamp())
-                .build();
-    }
 }

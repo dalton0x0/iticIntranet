@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LogMapper {
 
-    public LogDto from(Log log) {
+    public LogDto convertToDto(Log log) {
         return LogDto.builder()
                 .id(log.getId())
                 .level(log.getLevel())
