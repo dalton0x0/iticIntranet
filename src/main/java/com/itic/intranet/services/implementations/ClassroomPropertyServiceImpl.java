@@ -2,6 +2,7 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.EvaluationResponseDto;
 import com.itic.intranet.dtos.UserMinimalDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.EvaluationMapper;
@@ -35,7 +36,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
                 .map(userMapper::convertEntityToUserMinimalDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_CLASSROOM_TEACHERS",
                 "Getting all teachers of classroom",
                 Map.of(
@@ -53,7 +54,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
                 .map(userMapper::convertEntityToUserMinimalDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_CLASSROOM_STUDENTS",
                 "Getting all students of classroom",
                 Map.of(
@@ -71,7 +72,7 @@ public class ClassroomPropertyServiceImpl implements ClassroomPropertyService {
                 .map(evaluationMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_CLASSROOM_EVALUATIONS",
                 "Getting all evaluations of classroom",
                 Map.of(

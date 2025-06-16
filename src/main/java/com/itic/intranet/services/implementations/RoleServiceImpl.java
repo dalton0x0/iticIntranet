@@ -2,6 +2,7 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.RoleRequestDto;
 import com.itic.intranet.dtos.RoleResponseDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.RoleMapper;
@@ -34,7 +35,7 @@ public class RoleServiceImpl implements RoleService {
                 .map(roleMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_ALL_ROLES",
                 "Getting all roles",
                 Map.of(
@@ -48,7 +49,7 @@ public class RoleServiceImpl implements RoleService {
     public RoleResponseDto getRoleById(Long id) {
         Role role = entityHelper.getRole(id);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_ROLE",
                 "Getting role by ID",
                 Map.of(
@@ -68,7 +69,7 @@ public class RoleServiceImpl implements RoleService {
                 .map(roleMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "SEARCH_ROLE",
                 "Searching roles",
                 Map.of(
@@ -86,7 +87,7 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleMapper.convertToDtoEntity(roleDto);
         Role savedRole = roleRepository.save(role);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "CREATE_ROLE",
                 "Creating new role",
                 Map.of(
@@ -104,7 +105,7 @@ public class RoleServiceImpl implements RoleService {
         roleMapper.updateEntityFromDto(roleDto, existingRole);
         Role updatedRole = roleRepository.save(existingRole);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "UPDATE_ROLE",
                 "Updating new role",
                 Map.of(
@@ -123,7 +124,7 @@ public class RoleServiceImpl implements RoleService {
         }
         roleRepository.delete(role);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "DELETE_ROLE",
                 "Deleting new role",
                 Map.of(

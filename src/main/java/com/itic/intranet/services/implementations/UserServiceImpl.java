@@ -2,6 +2,7 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.UserRequestDto;
 import com.itic.intranet.dtos.UserResponseDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.UserMapper;
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .map(userMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_ALL_USERS",
                 "Getting all users",
                 Map.of(
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .map(userMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_ALL_ACTIVE_USERS",
                 "Getting all active users",
                 Map.of(
@@ -69,7 +70,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserResponseDto getUserById(Long id) {
         User user = entityHelper.getUser(id);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_USER",
                 "Getting user by ID",
                 Map.of(
@@ -90,7 +91,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .map(userMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "SEARCH_USER",
                 "Searching users",
                 Map.of(
@@ -109,7 +110,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = userMapper.convertDtoToEntity(userDto, role);
         User savedUser = userRepository.save(user);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "CREATE_USER",
                 "Creating new user",
                 Map.of(
@@ -129,7 +130,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userMapper.updateEntityFromDto(userDto, existingUser, role);
         User updatedUser = userRepository.save(existingUser);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "UPDATE_USER",
                 "Updating existing user",
                 Map.of(
@@ -146,7 +147,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         existingUser.setActive(false);
         userRepository.save(existingUser);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "DEACTIVATE_USER",
                 "Deactivating user",
                 Map.of(
@@ -161,7 +162,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         User user = entityHelper.getUser(id);
         userRepository.delete(user);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "DELETE_USER",
                 "Permanent deletion of user",
                 Map.of(

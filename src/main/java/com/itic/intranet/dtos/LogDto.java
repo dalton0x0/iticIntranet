@@ -1,6 +1,5 @@
 package com.itic.intranet.dtos;
 
-import com.itic.intranet.models.mongo.Log;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

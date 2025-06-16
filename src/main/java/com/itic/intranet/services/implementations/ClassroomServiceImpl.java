@@ -2,6 +2,7 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.ClassroomRequestDto;
 import com.itic.intranet.dtos.ClassroomResponseDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
@@ -35,7 +36,7 @@ public class ClassroomServiceImpl implements ClassroomService {
                 .map(classroomMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_ALL_CLASSROOMS",
                 "Getting all classrooms",
                 Map.of(
@@ -49,7 +50,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     public ClassroomResponseDto getClassroomById(Long id) {
         Classroom classroom = entityHelper.getClassroom(id);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_CLASSROOM",
                 "Getting classroom by ID",
                 Map.of(
@@ -69,7 +70,7 @@ public class ClassroomServiceImpl implements ClassroomService {
                 .map(classroomMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "SEARCH_CLASSROOM",
                 "Searching classrooms",
                 Map.of(
@@ -87,7 +88,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         Classroom classroom = classroomMapper.convertDtoToEntity(classroomDto);
         Classroom savedClassroom = classroomRepository.save(classroom);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "CREATE_CLASSROOM",
                 "Creating new classroom",
                 Map.of(
@@ -105,7 +106,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         classroomMapper.updateEntityFromDto(classroomDto, existingClassroom);
         Classroom updatedClassroom = classroomRepository.save(existingClassroom);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "UPDATE_CLASSROOM",
                 "Updating existing classroom",
                 Map.of(
@@ -124,7 +125,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         }
         classroomRepository.delete(classroom);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "DELETE_CLASSROOM",
                 "Deleting existing classroom",
                 Map.of(

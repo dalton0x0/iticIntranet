@@ -1,6 +1,7 @@
 package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.LogDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.mappers.LogMapper;
 import com.itic.intranet.models.mongo.Log;
 import com.itic.intranet.repositories.LogRepository;

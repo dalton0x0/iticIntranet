@@ -1,6 +1,7 @@
 package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.NoteResponseDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.NoteMapper;
@@ -36,7 +37,7 @@ public class EvaluationPropertyServiceImpl implements EvaluationPropertyService 
         evaluation.getClassrooms().add(classroom);
         evaluationRepository.save(evaluation);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "ADD_CLASSROOM_TO_USER",
                 "Adding classroom to evaluation",
                 Map.of(
@@ -56,7 +57,7 @@ public class EvaluationPropertyServiceImpl implements EvaluationPropertyService 
         evaluation.getClassrooms().remove(classroom);
         evaluationRepository.save(evaluation);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "REMOVE_CLASSROOM_TO_USER",
                 "Removing classroom to evaluation",
                 Map.of(
@@ -73,7 +74,7 @@ public class EvaluationPropertyServiceImpl implements EvaluationPropertyService 
                 .map(noteMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_EVALUATION_NOTES",
                 "Getting notes of evaluation",
                 Map.of(

@@ -2,6 +2,7 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.LoginRequestDto;
 import com.itic.intranet.dtos.LoginResponseDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.repositories.UserRepository;
 import com.itic.intranet.services.AuthService;
 import com.itic.intranet.services.JwtService;
@@ -35,7 +36,7 @@ public class AuthServiceImpl implements AuthService{
                 .orElseThrow(() -> {
                     logService.warn(
                             loginRequestDto.getUsername(),
-                            "LOGIN",
+                            LogActor.LOGIN.name(),
                             "Login failed ! Need to connect with invalid username",
                             Map.of(
                                     "username", loginRequestDto.getUsername()
@@ -61,7 +62,7 @@ public class AuthServiceImpl implements AuthService{
 
             logService.info(
                     loginRequestDto.getUsername(),
-                    "LOGIN",
+                    LogActor.LOGIN.name(),
                     "Login successful",
                     Map.of(
                             "userId", existingUser.getId(),
@@ -78,7 +79,7 @@ public class AuthServiceImpl implements AuthService{
         } catch (Exception e) {
             logService.warn(
                     loginRequestDto.getUsername(),
-                    "LOGIN",
+                    LogActor.LOGIN.name(),
                     "Login failed",
                     Map.of(
                             "userId", existingUser.getId(),

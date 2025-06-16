@@ -1,5 +1,6 @@
 package com.itic.intranet.exceptions;
 
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.services.LogService;
 import com.itic.intranet.utils.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class GlobalExceptionHandler {
         ApiResponse error = ApiResponse.builder()
                 .message(exception.getMessage())
                 .build();
-        logService.warn("SYSTEM", "RESOURCE_NOT_FOUND", exception.getMessage(), null);
+        logService.warn(LogActor.SYSTEM.name(), "RESOURCE_NOT_FOUND", exception.getMessage(), null);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
@@ -31,7 +32,7 @@ public class GlobalExceptionHandler {
         ApiResponse error = ApiResponse.builder()
                 .message("Error: " + exception.getMessage())
                 .build();
-        logService.warn("SYSTEM", "BAD_REQUEST", exception.getMessage(), null);
+        logService.warn(LogActor.SYSTEM.name(), "BAD_REQUEST", exception.getMessage(), null);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
@@ -40,7 +41,7 @@ public class GlobalExceptionHandler {
         ApiResponse error = ApiResponse.builder()
                 .message("Error: " + exception.getMessage())
                 .build();
-        logService.error("SYSTEM", "RUNTIME_EXCEPTION", exception.getMessage(), null);
+        logService.error(LogActor.SYSTEM.name(), "RUNTIME_EXCEPTION", exception.getMessage(), null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

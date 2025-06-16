@@ -2,6 +2,7 @@ package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.NoteRequestDto;
 import com.itic.intranet.dtos.NoteResponseDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.NoteMapper;
@@ -33,7 +34,7 @@ public class NoteServiceImpl implements NoteService {
                 .map(noteMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_ALL_NOTES",
                 "Getting all allNotes",
                 Map.of(
@@ -47,7 +48,7 @@ public class NoteServiceImpl implements NoteService {
     public NoteResponseDto getNoteById(Long id) {
         Note note = entityHelper.getNote(id);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_NOTE",
                 "Getting note by ID",
                 Map.of(
@@ -66,7 +67,7 @@ public class NoteServiceImpl implements NoteService {
         Note note = noteMapper.convertDtoToEntity(noteDto, student, evaluation);
         Note savedNote = noteRepository.save(note);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "ADD_NOTE",
                 "Adding new note",
                 Map.of(
@@ -87,7 +88,7 @@ public class NoteServiceImpl implements NoteService {
         noteMapper.updateEntityFromDto(noteDto, existingNote, student, evaluation);
         Note updatedNote = noteRepository.save(existingNote);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "UPDATE_NOTE",
                 "Updating note",
                 Map.of(
@@ -104,7 +105,7 @@ public class NoteServiceImpl implements NoteService {
         Note note = entityHelper.getNote(id);
         noteRepository.delete(note);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "DELETE_NOTE",
                 "Deleting note",
                 Map.of(

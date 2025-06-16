@@ -1,6 +1,7 @@
 package com.itic.intranet.services.implementations;
 
 import com.itic.intranet.dtos.NoteMinimalDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
@@ -35,7 +36,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
         user.setRole(role);
         userRepository.save(user);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "ASSIGN_ROLE",
                 "Assigning role",
                 Map.of(
@@ -58,7 +59,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
         user.setRole(null);
         userRepository.save(user);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "REMOVE_ROLE",
                 "Removing role",
                 Map.of(
@@ -75,7 +76,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
             throw new BadRequestException("User has no role assigned");
         }
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_ROLE_OF_USER",
                 "Getting role of user",
                 Map.of(
@@ -106,7 +107,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
         }
         userRepository.save(user);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "ASSIGN_CLASSROOM_TO_USER",
                 "Assigning classroom",
                 Map.of(
@@ -137,7 +138,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
         }
         userRepository.save(user);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "REMOVE_CLASSROOM_TO_USER",
                 "Removing classroom",
                 Map.of(
@@ -154,7 +155,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
                 .map(noteMapper::convertEntityToUserMinimalDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_STUDENT_NOTES",
                 "Getting student notes",
                 Map.of(

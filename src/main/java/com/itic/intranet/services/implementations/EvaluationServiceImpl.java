@@ -3,6 +3,7 @@ package com.itic.intranet.services.implementations;
 import com.itic.intranet.dtos.EvaluationDetailedResponseDto;
 import com.itic.intranet.dtos.EvaluationRequestDto;
 import com.itic.intranet.dtos.EvaluationResponseDto;
+import com.itic.intranet.enums.LogActor;
 import com.itic.intranet.exceptions.BadRequestException;
 import com.itic.intranet.helpers.EntityHelper;
 import com.itic.intranet.mappers.EvaluationMapper;
@@ -34,7 +35,7 @@ public class EvaluationServiceImpl implements EvaluationService {
                 .map(evaluationMapper::convertToDetailedDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_ALL_EVALUATIONS",
                 "Getting all evaluations",
                 Map.of(
@@ -48,7 +49,7 @@ public class EvaluationServiceImpl implements EvaluationService {
     public EvaluationResponseDto getEvaluationById(Long id) {
         Evaluation evaluation = entityHelper.getEvaluation(id);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "GET_EVALUATION",
                 "Getting evaluation by ID",
                 Map.of(
@@ -68,7 +69,7 @@ public class EvaluationServiceImpl implements EvaluationService {
                 .map(evaluationMapper::convertEntityToResponseDto)
                 .toList();
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "SEARCH_EVALUATION",
                 "Searching evaluations",
                 Map.of(
@@ -89,7 +90,7 @@ public class EvaluationServiceImpl implements EvaluationService {
         Evaluation evaluation = evaluationMapper.convertDtoToEntity(evaluationDto, user);
         Evaluation savedEvaluation = evaluationRepository.save(evaluation);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "CREATE_EVALUATION",
                 "Creating new evaluation",
                 Map.of(
@@ -106,7 +107,7 @@ public class EvaluationServiceImpl implements EvaluationService {
         evaluationMapper.updateFromEntityDto(evaluationDto, existingEvaluation, existingEvaluation.getCreatedBy());
         Evaluation updatedEvaluation = evaluationRepository.save(existingEvaluation);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "UPDATE_EVALUATION",
                 "Update existing evaluation",
                 Map.of(
@@ -124,7 +125,7 @@ public class EvaluationServiceImpl implements EvaluationService {
         }
         evaluationRepository.delete(evaluation);
         logService.info(
-                "SYSTEM",
+                LogActor.SYSTEM.name(),
                 "DELETE_EVALUATION",
                 "Deleting evaluation",
                 Map.of(
