@@ -1,5 +1,6 @@
 package com.itic.intranet.configs;
 
+import com.itic.intranet.enums.RoleType;
 import com.itic.intranet.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -40,19 +41,19 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/swagger-resources/**",
                         "/webjars/**"
-                ).hasAuthority("ADMIN"))
+                ).hasAuthority(RoleType.ADMIN.name()))
                 .authorizeHttpRequests(request -> request.requestMatchers(
                         "/api/v18/users/**",
                         "/api/v18/roles/**",
                         "/api/v18/classrooms/**",
                         "/api/v18/logs/**"
-                ).hasAuthority("ADMIN"))
+                ).hasAuthority(RoleType.ADMIN.name()))
                 .authorizeHttpRequests(request -> request.requestMatchers(
                         "/api/v18/evaluations/**"
-                ).hasAnyAuthority("ADMIN", "TEACHER"))
+                ).hasAnyAuthority(RoleType.ADMIN.name(), RoleType.TEACHER.name()))
                 .authorizeHttpRequests(request -> request.requestMatchers(
                         "/api/v18/notes/**"
-                ).hasAnyAuthority("ADMIN", "TEACHER", "STUDENT"))
+                ).hasAnyAuthority(RoleType.ADMIN.name(), RoleType.TEACHER.name(), RoleType.STUDENT.name()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
