@@ -32,6 +32,8 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public ResponseEntity<LoginResponseDto> login(LoginRequestDto loginRequestDto) {
 
+        validateLoginForm(loginRequestDto);
+
         var existingUser = userRepository.findByUsername(loginRequestDto.getUsername())
                 .orElseThrow(() -> {
                     logService.warn(
@@ -88,6 +90,15 @@ public class AuthServiceImpl implements AuthService{
                     )
             );
             throw new BadCredentialsException("Invalid username or password");
+        }
+    }
+
+    private void validateLoginForm(LoginRequestDto loginRequestDto) {
+        if (loginRequestDto.getUsername() == null || loginRequestDto.getUsername().trim().isEmpty()) {
+            throw new BadCredentialsException("Username cannot be null or empty");
+        }
+        if (loginRequestDto.getPassword() == null || loginRequestDto.getPassword().trim().isEmpty()) {
+            throw new BadCredentialsException("Password cannot be null or empty");
         }
     }
 }
