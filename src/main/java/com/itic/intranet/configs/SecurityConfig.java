@@ -52,7 +52,8 @@ public class SecurityConfig {
                         "/api/v18/evaluations/**"
                 ).hasAnyAuthority(RoleType.ADMIN.name(), RoleType.TEACHER.name()))
                 .authorizeHttpRequests(request -> request.requestMatchers(
-                        "/api/v18/notes/**"
+                        "/api/v18/notes/**",
+                        "/api/v18/dashboard/**"
                 ).hasAnyAuthority(RoleType.ADMIN.name(), RoleType.TEACHER.name(), RoleType.STUDENT.name()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))

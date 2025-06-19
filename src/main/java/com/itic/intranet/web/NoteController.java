@@ -17,7 +17,7 @@ public class NoteController {
 
     private final NoteService noteService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<NoteResponseDto>> getAllNotes() {
         List<NoteResponseDto> notes = noteService.getAllNotes();
         return notes.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(notes);

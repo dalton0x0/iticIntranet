@@ -14,61 +14,61 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class User implements UserDetails {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String firstName;
-    private String lastName;
-    @Column(unique = true)
-    private String email;
-    @Column(unique = true)
-    private String username;
-    private String password;
+    @Entity
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public class User implements UserDetails {
+        @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+        private String firstName;
+        private String lastName;
+        @Column(unique = true)
+        private String email;
+        @Column(unique = true)
+        private String username;
+        private String password;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id")
-    private Role role;
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name = "role_id")
+        private Role role;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "classroom_id")
-    private Classroom classroom;
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name = "classroom_id")
+        private Classroom classroom;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "classroom_teacher",
-            joinColumns = @JoinColumn(name = "teacher_id"),
-            inverseJoinColumns = @JoinColumn(name = "classroom_id"))
-    private List<Classroom> taughtClassrooms = new ArrayList<>();
+        @ManyToMany(fetch = FetchType.EAGER)
+        @JoinTable(name = "classroom_teacher",
+                joinColumns = @JoinColumn(name = "teacher_id"),
+                inverseJoinColumns = @JoinColumn(name = "classroom_id"))
+        private List<Classroom> taughtClassrooms = new ArrayList<>();
 
-    @OneToMany(mappedBy = "student")
-    private List<Note> notes = new ArrayList<>();
+        @OneToMany(mappedBy = "student")
+        private List<Note> notes = new ArrayList<>();
 
-    private boolean active;
+        private boolean active;
 
-    public boolean isTeacher() {
-        return this.role.getRoleType() == RoleType.TEACHER;
+        public boolean isTeacher() {
+            return this.role.getRoleType() == RoleType.TEACHER;
+        }
+
+        public boolean isStudent() {
+            return this.role.getRoleType() == RoleType.STUDENT;
+        }
+
+        public String getFullName() {
+            return this.firstName + " " + this.lastName;
+        }
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            GrantedAuthority authority = new SimpleGrantedAuthority(this.role.getRoleType().name());
+            return List.of(authority);
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return this.active;
+        }
     }
-
-    public boolean isStudent() {
-        return this.role.getRoleType() == RoleType.STUDENT;
-    }
-    
-    public String getFullName() {
-        return this.firstName + " " + this.lastName;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        GrantedAuthority authority = new SimpleGrantedAuthority(this.role.getRoleType().name());
-        return List.of(authority);
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.active;
-    }
-}

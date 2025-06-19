@@ -18,7 +18,7 @@ public class EvaluationController {
 
     private final EvaluationService evaluationService;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<EvaluationDetailedResponseDto>> getAllEvaluations() {
         List<EvaluationDetailedResponseDto> evaluations = evaluationService.getAllEvaluations();
         return evaluations.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(evaluations);
